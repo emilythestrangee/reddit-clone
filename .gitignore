@@ -1,0 +1,23 @@
+# Backend
+backend/reddit.db
+backend/*.db
+backend/backend.exe
+backend/backend
+
+# Frontend  
+expo-app/node_modules/
+expo-app/.expo/
+expo-app/dist/
+expo-app/.expo-shared/
+
+# Environment variables
+.env
+*.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
