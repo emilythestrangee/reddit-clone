@@ -1,5 +1,3 @@
-# reddit-clone
-
 # 🚀 Reddit Clone - Mobile Forum Application (Work In Progress)
 
 > A full-stack Reddit-style forum built with **React Native (Expo)** and **Golang** backend. Create posts, engage with comments, follow users, and build your community!
