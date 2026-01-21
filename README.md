@@ -21,14 +21,14 @@
 Building a production-ready mobile forum application (Reddit clone) from scratch as part of a technical assessment. This project demonstrates full-stack development capabilities, API design, mobile app architecture, and deployment skills within a **2-week timeline**.
 
 **Core Requirements:**
-- ✅ User authentication (register/login)
-- ✅ Create, read, update, delete posts
-- ✅ Commenting system
-- ✅ Image uploads
-- ✅ User profiles with follow/unfollow
-- ✅ Mobile-first design with React Native
-- ✅ RESTful API backend in Golang
-- ✅ Production deployment
+- User authentication (register/login)
+- Create, read, update, delete posts
+- Commenting system
+- Image uploads
+- User profiles with follow/unfollow
+- Mobile-first design with React Native
+- RESTful API backend in Golang
+- Production deployment
 
 ---
 
@@ -58,9 +58,7 @@ Building a production-ready mobile forum application (Reddit clone) from scratch
 
 ---
 
-## 🔄 Tech Stack Comparison
-
-We're following tutorial concepts but using our **own custom backend** instead of third-party services:
+## 🔄 Tech Stack Decisions
 
 | Feature | Other Applications | Our Application | Why |
 |---------|--------------|-------------|-----|
@@ -72,16 +70,16 @@ We're following tutorial concepts but using our **own custom backend** instead o
 | **Storage** | Supabase Storage | Custom file upload API | Integrated with our backend |
 
 **Our Approach:**
-- 📚 **Learning from tutorials** - UI/UX patterns, component structure, navigation flows
-- 🛠️ **Building custom backend** - Full ownership of API design and data flow
-- 🎯 **Simplified stack** - Using proven, straightforward technologies
-- 🚀 **Production-ready** - Deployable, scalable architecture
+- **Learning from resources** - UI/UX patterns, component structure, navigation flows
+- **Building custom backend** - Full ownership of API design and data flow
+- **Simplified stack** - Using proven, straightforward technologies
+- **Production-ready** - Deployable, scalable architecture
 
 ---
 
 ## 📊 Current Status
 
-### ✅ **Completed (Week 1 - Days 1-2)**
+### **Completed (Week 1 - Days 1-2)**
 - [x] Project structure setup (monorepo)
 - [x] Backend API with all core endpoints (15 routes)
 - [x] Database models (Users, Posts, Comments, Follows)
@@ -90,19 +88,19 @@ We're following tutorial concepts but using our **own custom backend** instead o
 - [x] Backend tested with Postman
 - [x] SQLite database with migrations
 
-### 🚧 **In Progress (Week 1 - Days 3-4)**
+### **In Progress (Week 1 - Days 3-4)**
 - [ ] Frontend screens (Login, Register, Feed)
 - [ ] React Navigation setup
 - [ ] API service layer (Axios integration)
 - [ ] Authentication flow with token storage
 
-### 📅 **Upcoming (Week 1 - Days 5-7)**
+### **Upcoming (Week 1 - Days 5-7)**
 - [ ] Create post screen with image picker
 - [ ] Post detail screen with comments
 - [ ] User profile screens
 - [ ] Follow/unfollow functionality
 
-### 📅 **Week 2**
+### **Week 2**
 - [ ] Polish UI/UX
 - [ ] Implement JWT authentication
 - [ ] Deploy backend 
@@ -113,35 +111,35 @@ We're following tutorial concepts but using our **own custom backend** instead o
 
 ## ✨ Features
 
-### **Authentication** 🔐
+### **Authentication** 
 - User registration with email validation
 - Secure login system
 - Token-based session management
 - Persistent authentication state
 - Logout functionality
 
-### **Posts** 📝
+### **Posts** 
 - Create posts with title, content, and images
 - Edit and delete own posts
 - Upvote/downvote system
 - Chronological feed display
 - Image attachments via native picker
 
-### **Comments** 💬
+### **Comments** 
 - Comment on any post
 - View all comments per post
 - Edit/delete own comments
 - Real-time comment counts
 - User attribution for each comment
 
-### **User Profiles** 👤
+### **User Profiles** 
 - View user profiles with post history
 - Follow/unfollow users
 - Follower and following counts
 - Edit profile information
 - View followed users' posts
 
-### **Social Features** 🌐
+### **Social Features** 
 - Personalized feed based on follows
 - Discover new users
 - Community engagement metrics
@@ -159,7 +157,7 @@ Week 1 (Jan 21-27)
 │   ├── All API endpoints ✅
 │   └── Postman testing ✅
 │
-├── Days 3-4: Frontend setup & auth 🚧
+├── Days 3-4: Frontend setup & auth 
 │   ├── Expo project init ✅
 │   ├── Navigation structure
 │   ├── Login/Register screens
@@ -384,31 +382,31 @@ GET    /api/users/:id/following       # Get following list (public)
 This project covers comprehensive full-stack mobile development:
 
 ### **Frontend Skills**
-- ⚛️ **React Native fundamentals** - Components, state, props, hooks
-- 📱 **Mobile UI/UX** - Native design patterns and interactions
-- 🧭 **Navigation** - Stack and tab navigation patterns
-- 🎨 **Styling** - React Native StyleSheet and layouts
-- 📸 **Native APIs** - Image picker, camera, storage
-- 🔄 **State management** - Context API and custom hooks
-- 🌐 **API integration** - Axios for HTTP requests
-- 💾 **Local storage** - AsyncStorage for persistence
+- **React Native fundamentals** - Components, state, props, hooks
+- **Mobile UI/UX** - Native design patterns and interactions
+- **Navigation** - Stack and tab navigation patterns
+- **Styling** - React Native StyleSheet and layouts
+- **Native APIs** - Image picker, camera, storage
+- **State management** - Context API and custom hooks
+- **API integration** - Axios for HTTP requests
+- **Local storage** - AsyncStorage for persistence
 
 ### **Backend Skills**
-- 🐹 **Golang** - Language fundamentals and best practices
-- 🌐 **RESTful API design** - Resource-based endpoints
-- 🗄️ **Database modeling** - Relational data structures with GORM
-- 🔐 **Authentication** - JWT tokens and middleware
-- 📦 **CRUD operations** - Full data lifecycle management
-- 🔗 **Database relationships** - Foreign keys and associations
-- ⚡ **Performance** - Efficient queries and data loading
-- 🛡️ **Security** - CORS, input validation, password hashing
+- **Golang** - Language fundamentals and best practices
+- **RESTful API design** - Resource-based endpoints
+- **Database modeling** - Relational data structures with GORM
+- **Authentication** - JWT tokens and middleware
+- **CRUD operations** - Full data lifecycle management
+- **Database relationships** - Foreign keys and associations
+- **Performance** - Efficient queries and data loading
+- **Security** - CORS, input validation, password hashing
 
 ### **DevOps & Tools**
-- 🚀 **Deployment** - Railway for backend hosting
-- 📱 **Mobile distribution** - Expo Go for testing
-- 🧪 **API testing** - Postman workflows and collections
-- 📝 **Version control** - Git workflow and collaboration
-- 🏗️ **Project structure** - Monorepo organization
+- **Deployment** - Railway for backend hosting
+- **Mobile distribution** - Expo Go for testing
+- **API testing** - Postman workflows and collections
+- **Version control** - Git workflow and collaboration
+- **Project structure** - Monorepo organization
 
 ---
 
@@ -428,30 +426,30 @@ This project covers comprehensive full-stack mobile development:
 ## 📝 Development Notes
 
 ### **Architecture Decisions**
-- ✅ **Monorepo structure** - Easier development, single source of truth
-- ✅ **API-first approach** - Backend complete before UI integration
-- ✅ **SQLite for development** - Fast iteration, will migrate to PostgreSQL
-- ✅ **Mock auth initially** - Functional first, secure later
-- ✅ **CORS enabled** - Configured for mobile app access
-- ✅ **Modular organization** - Separate screens, components, services
+- **Monorepo structure** - Easier development, single source of truth
+- **API-first approach** - Backend complete before UI integration
+- **SQLite for development** - Fast iteration, will migrate to PostgreSQL
+- **Mock auth initially** - Functional first, secure later
+- **CORS enabled** - Configured for mobile app access
+- **Modular organization** - Separate screens, components, services
 
 ### **Current Limitations (MVP)**
-- 🔄 Mock JWT tokens (functional auth, not production-secure yet)
-- 🔄 SQLite database (will migrate to PostgreSQL for production)
-- 🔄 Basic error handling (will enhance with better UX)
-- 🔄 No real-time features (can add with WebSockets later)
+- Mock JWT tokens (functional auth, not production-secure yet)
+- SQLite database (will migrate to PostgreSQL for production)
+- Basic error handling (will enhance with better UX)
+- No real-time features (can add with WebSockets later)
 
 ### **Post-MVP Enhancements**
-- 🚀 Proper JWT with refresh tokens
-- 🚀 PostgreSQL migration for production
-- 🚀 Real-time notifications
-- 🚀 Search functionality
-- 🚀 Content moderation
-- 🚀 Dark mode support
-- 🚀 Push notifications
-- 🚀 Analytics dashboard
-- 🚀 Image compression and optimization
-- 🚀 Pagination for large datasets
+- Proper JWT with refresh tokens
+- PostgreSQL migration for production
+- Real-time notifications
+- Search functionality
+- Content moderation
+- Dark mode support
+- Push notifications
+- Analytics dashboard
+- Image compression and optimization
+- Pagination for large datasets
 
 ---
 
