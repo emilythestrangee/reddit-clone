@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -55,6 +56,9 @@ type Follow struct {
 var db *gorm.DB
 
 func main() {
+	// Load environment variables
+	godotenv.Load()
+
 	// Initialize database
 	var err error
 	db, err = gorm.Open(sqlite.Open("reddit.db"), &gorm.Config{})

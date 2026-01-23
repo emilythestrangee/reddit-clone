@@ -3,6 +3,7 @@ backend/reddit.db
 backend/*.db
 backend/backend.exe
 backend/backend
+backend/.env
 
 # Frontend  
 expo-app/node_modules/
