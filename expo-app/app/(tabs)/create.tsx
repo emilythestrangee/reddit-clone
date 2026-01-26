@@ -11,7 +11,7 @@ export default function CreateScreen() {
   const [body, setBody] = useState<string>('')
 
   const colors = {
-    dark: { bg: '#030303', text: '#000000', inputBg: '#1a1a1b', border: '#343536' },
+    dark: { bg: '#030303', text: '#d7dadc', inputBg: '#1a1a1b', border: '#343536' },
     light: { bg: '#ffffff', text: '#030303', inputBg: '#f6f7f8', border: '#e5e5e5' },
   };
   const currentColors = colors[theme];
@@ -39,7 +39,7 @@ export default function CreateScreen() {
       <Link href={"groupSelector" as any} asChild>
         <Pressable style={styles.communityContainer}>
           <Text style={styles.rStyles}>r/</Text>
-          <Text style={{ fontWeight: '600', color: currentColors.text }}>Select a Community</Text>
+          <Text style={{ fontWeight: '600', color: '#1a1a1b' }}>Select a Community</Text>
         </Pressable>
       </Link>
 
