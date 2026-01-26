@@ -1,24 +1,25 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { Redirect, router, Stack } from 'expo-router';
+import { View } from 'react-native';
+import { AntDesign, MaterialIcons, Entypo } from '@expo/vector-icons';
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Stack>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="groupSelector" options={{ headerShown: false }} />
+      <Stack.Screen name="post/[id]" options={{
+         headerTitle: '',
+         headerStyle: { backgroundColor: '#FF5700' },
+         headerLeft: () => <AntDesign name="close" size={24} color="white" onPress={() => router.back()} />,
+         headerRight: () => 
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+                <AntDesign name="search" size={24} color="white" />
+                <MaterialIcons name="sort" size={24} color="white" />
+                <Entypo name="dots-three-vertical" size={24} color="white" />
+            </View>,
+        animation: 'slide_from_bottom',
+
+      }} />
+    </Stack>
   );
 }
