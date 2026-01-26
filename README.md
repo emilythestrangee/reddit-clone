@@ -200,36 +200,49 @@ Week 2 (Jan 28 - Feb 4)
 
 ```
 reddit-clone/
+├── assets/                     # Root level assets
+│   └── icon.png
+│
 ├── backend/                    # Golang REST API
-│   ├── main.go                # Server entry point (all code here for now)
+│   ├── main.go                # Server entry point
 │   ├── go.mod                 # Go dependencies
-│   ├── go.sum                 # Dependency checksums
+│   └── go.sum                 # Dependency checksums
 │
-├── expo-app/                   # React Native mobile app
-│   ├── App.js                 # App entry point (yet to be implemented)
-│   ├── app.json               # Expo configuration
-│   ├── package.json           # npm dependencies
-│   │
-│   ├── screens/               # UI screens
-│   │   ├── LoginScreen.js
-│   │   ├── RegisterScreen.js
-│   │   ├── FeedScreen.js
-│   │   ├── CreatePostScreen.js
-│   │   ├── PostDetailScreen.js
-│   │   └── ProfileScreen.js
-│   │
-│   ├── components/            # Reusable components
-│   │   ├── PostCard.js
-│   │   ├── CommentItem.js
-│   │   └── Header.js
-│   │
-│   └── services/              # API integration (yet to be implemented)
-│       └── api.js             # Axios API calls (yet to be implemented)
-│
-├── .gitignore                 # Git ignore rules
-└── README.md                  # This file
-```
-
+└── expo-app/                   # React Native mobile app (TypeScript)
+    ├── app/                   # Expo Router screens
+    │   ├── (tabs)/           # Tab navigation
+    │   │   ├── _layout.tsx   # Tab layout
+    │   │   ├── index.tsx     # Home/Feed screen
+    │   │   ├── chat.tsx      # Chat screen
+    │   │   ├── communities.tsx # Communities screen
+    │   │   ├── create.tsx    # Create post screen
+    │   │   └── inbox.tsx     # Inbox screen
+    │   │
+    │   ├── post/             # Post detail screens
+    │   │   └── _layout.tsx
+    │   │
+    │   ├── assets/           # App assets
+    │   │   └── images/       # Image files
+    │   │
+    │   ├── components/       # Reusable components
+    │   │   └── ui/          # UI components
+    │   │       ├── PostListItem.tsx
+    │   │       ├── CommentListItem.tsx
+    │   │       ├── themed-text.tsx
+    │   │       └── themed-view.tsx
+    │   │
+    │   ├── constants/        # App constants
+    │   ├── hooks/            # Custom React hooks
+    │   ├── types/            # TypeScript type definitions
+    │   │
+    │   ├── groupSelector.tsx # Group selector screen
+    │   └── modal.tsx         # Modal screen
+    │
+    ├── app.json              # Expo configuration
+    ├── package.json          # npm dependencies
+    ├── tsconfig.json         # TypeScript configuration
+    |── README.md
+    └── eslint.config.js      # ESLint rules
 ---
 
 ## 🚀 Getting Started
