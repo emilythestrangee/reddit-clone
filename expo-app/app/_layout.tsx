@@ -48,6 +48,12 @@ function RootLayoutContent() {
             animation: 'slide_from_bottom',
           }} 
         />
+        <Stack.Screen 
+          name="auth/page" 
+          options={{ 
+            headerShown: false 
+          }} 
+        />
       </Stack>
 
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />

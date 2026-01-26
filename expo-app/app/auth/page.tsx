@@ -1,4 +1,4 @@
-// app/auth/page.tsx - Fixed version
+// app/auth/page.tsx - With Dark Theme Support
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
@@ -14,9 +13,14 @@ import {
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function AuthPage() {
   const router = useRouter();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -63,8 +67,21 @@ export default function AuthPage() {
     router.back();
   };
 
+  // Theme colors
+  const colors = {
+    background: isDark ? '#000000' : '#FFFFFF',
+    text: isDark ? '#FFFFFF' : '#1A1A1B',
+    textSecondary: isDark ? '#B8B8B8' : '#878A8C',
+    border: isDark ? '#343536' : '#EDEDED',
+    inputBg: isDark ? '#1A1A1B' : '#FAFAFA',
+    inputBorder: isDark ? '#343536' : '#E9E9E9',
+    errorBg: isDark ? '#3D1518' : '#FFEBEE',
+    errorText: isDark ? '#FF6B6B' : '#EA0027',
+    divider: isDark ? '#343536' : '#E9E9E9',
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
@@ -75,9 +92,9 @@ export default function AuthPage() {
           keyboardShouldPersistTaps="handled"
         >
           {/* Header */}
-          <View style={styles.header}>
+          <View style={[styles.header, { paddingTop: 30, borderBottomColor: colors.border }]}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Ionicons name="close" size={24} color="#878A8C" />
+              <Ionicons name="close" size={24} color={colors.textSecondary} />
             </TouchableOpacity>
             <View style={styles.logoContainer}>
               <Ionicons name="logo-reddit" size={28} color="#FF5700" />
@@ -88,30 +105,37 @@ export default function AuthPage() {
 
           {/* Auth Form */}
           <View style={styles.formContainer}>
-            <Text style={styles.title}>
+            <Text style={[styles.title, { color: colors.text }]}>
               {isLogin ? 'Log in to Reddit' : 'Join Reddit'}
             </Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
               {isLogin
                 ? 'By continuing, you agree to our User Agreement and Privacy Policy.'
                 : 'Create your account to join the conversation.'}
             </Text>
 
             {error ? (
-              <View style={styles.errorContainer}>
-                <MaterialIcons name="error-outline" size={20} color="#EA0027" />
-                <Text style={styles.errorText}>{error}</Text>
+              <View style={[styles.errorContainer, { backgroundColor: colors.errorBg }]}>
+                <MaterialIcons name="error-outline" size={20} color={colors.errorText} />
+                <Text style={[styles.errorText, { color: colors.errorText }]}>{error}</Text>
               </View>
             ) : null}
 
             {/* Signup Fields */}
             {!isLogin && (
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>USERNAME</Text>
+                <Text style={[styles.label, { color: colors.textSecondary }]}>USERNAME</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[
+                    styles.input,
+                    { 
+                      backgroundColor: colors.inputBg,
+                      borderColor: colors.inputBorder,
+                      color: colors.text
+                    }
+                  ]}
                   placeholder="Choose a username"
-                  placeholderTextColor="#878A8C"
+                  placeholderTextColor={colors.textSecondary}
                   value={username}
                   onChangeText={setUsername}
                   autoCapitalize="none"
@@ -122,11 +146,18 @@ export default function AuthPage() {
 
             {/* Email Field */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>EMAIL</Text>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>EMAIL</Text>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  { 
+                    backgroundColor: colors.inputBg,
+                    borderColor: colors.inputBorder,
+                    color: colors.text
+                  }
+                ]}
                 placeholder="Enter your email"
-                placeholderTextColor="#878A8C"
+                placeholderTextColor={colors.textSecondary}
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"
@@ -137,12 +168,21 @@ export default function AuthPage() {
 
             {/* Password Field */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>PASSWORD</Text>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>PASSWORD</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
-                  style={[styles.input, { flex: 1, paddingRight: 50 }]}
+                  style={[
+                    styles.input,
+                    { 
+                      flex: 1,
+                      paddingRight: 50,
+                      backgroundColor: colors.inputBg,
+                      borderColor: colors.inputBorder,
+                      color: colors.text
+                    }
+                  ]}
                   placeholder="Enter your password"
-                  placeholderTextColor="#878A8C"
+                  placeholderTextColor={colors.textSecondary}
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
@@ -156,12 +196,12 @@ export default function AuthPage() {
                   <Ionicons
                     name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                     size={20}
-                    color="#878A8C"
+                    color={colors.textSecondary}
                   />
                 </TouchableOpacity>
               </View>
               {!isLogin && (
-                <Text style={styles.passwordHint}>
+                <Text style={[styles.passwordHint, { color: colors.textSecondary }]}>
                   Password must be at least 6 characters
                 </Text>
               )}
@@ -184,9 +224,9 @@ export default function AuthPage() {
 
             {/* OR Divider */}
             <View style={styles.dividerContainer}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>OR</Text>
-              <View style={styles.dividerLine} />
+              <View style={[styles.dividerLine, { backgroundColor: colors.divider }]} />
+              <Text style={[styles.dividerText, { color: colors.textSecondary }]}>OR</Text>
+              <View style={[styles.dividerLine, { backgroundColor: colors.divider }]} />
             </View>
 
             {/* Social Login Buttons */}
@@ -201,7 +241,7 @@ export default function AuthPage() {
                 <Text style={styles.socialButtonText}>Continue with Google</Text>
               </TouchableOpacity>
 
-              {/* Apple - FIXED: Using Ionicons instead of AntDesign */}
+              {/* Apple */}
               <TouchableOpacity
                 style={[styles.socialButton, styles.appleButton]}
                 onPress={() => handleSocialLogin('apple')}
@@ -224,7 +264,7 @@ export default function AuthPage() {
 
             {/* Switch between Login/Signup */}
             <View style={styles.switchContainer}>
-              <Text style={styles.switchText}>
+              <Text style={[styles.switchText, { color: colors.textSecondary }]}>
                 {isLogin ? "Don't have an account?" : "Already have an account?"}
               </Text>
               <TouchableOpacity
@@ -242,7 +282,7 @@ export default function AuthPage() {
 
             {/* Terms */}
             <View style={styles.termsContainer}>
-              <Text style={styles.termsText}>
+              <Text style={[styles.termsText, { color: colors.textSecondary }]}>
                 By continuing, you agree to our{' '}
                 <Text style={styles.termsLink}>User Agreement</Text> and acknowledge
                 that you understand the{' '}
@@ -259,7 +299,6 @@ export default function AuthPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
   },
   keyboardView: {
     flex: 1,
@@ -274,7 +313,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#EDEDED',
   },
   backButton: {
     width: 40,
@@ -300,25 +338,21 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#1A1A1B',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
-    color: '#878A8C',
     lineHeight: 20,
     marginBottom: 24,
   },
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFEBEE',
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
   },
   errorText: {
-    color: '#EA0027',
     fontSize: 14,
     marginLeft: 8,
     flex: 1,
@@ -329,19 +363,15 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#878A8C',
     marginBottom: 8,
     textTransform: 'uppercase',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#E9E9E9',
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
-    backgroundColor: '#FAFAFA',
-    color: '#1A1A1B',
   },
   passwordContainer: {
     flexDirection: 'row',
@@ -354,7 +384,6 @@ const styles = StyleSheet.create({
   },
   passwordHint: {
     fontSize: 12,
-    color: '#878A8C',
     marginTop: 6,
   },
   authButton: {
@@ -381,11 +410,9 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E9E9E9',
   },
   dividerText: {
     marginHorizontal: 16,
-    color: '#878A8C',
     fontSize: 14,
     fontWeight: '500',
   },
@@ -425,7 +452,6 @@ const styles = StyleSheet.create({
   },
   switchText: {
     fontSize: 14,
-    color: '#878A8C',
   },
   switchLink: {
     fontSize: 14,
@@ -437,7 +463,6 @@ const styles = StyleSheet.create({
   },
   termsText: {
     fontSize: 12,
-    color: '#878A8C',
     textAlign: 'center',
     lineHeight: 16,
   },

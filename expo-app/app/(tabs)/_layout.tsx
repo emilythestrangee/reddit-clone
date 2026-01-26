@@ -44,7 +44,7 @@ export default function TabLayout() {
           ),
           headerRight: () => (
             <TouchableOpacity 
-              onPress={() => router.push("/auth/page")} 
+              onPress={() => router.push("../auth/page")} 
               style={{ paddingRight: 16 }}
             >
               <View style={{
