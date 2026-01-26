@@ -1,13 +1,15 @@
 import { Tabs } from "expo-router";
 import { AntDesign, Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useState } from "react";
 import { Sidebar } from "../../components/Sidebar";
+import { useRouter } from "expo-router";
 
 export default function TabLayout() {
   const { theme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const router = useRouter();
 
   const colors = {
     dark: { bg: '#030303', text: '#d7dadc', headerBg: '#1a1a1b', tabBg: '#1a1a1b' },
@@ -40,13 +42,36 @@ export default function TabLayout() {
               <MaterialIcons name="menu" size={24} color={currentColors.text} />
             </TouchableOpacity>
           ),
+          headerRight: () => (
+            <TouchableOpacity 
+              onPress={() => router.push("/auth/page")} 
+              style={{ paddingRight: 16 }}
+            >
+              <View style={{
+                width: 32,
+                height: 32,
+                borderRadius: 16,
+                backgroundColor: theme === 'dark' ? '#343536' : '#e4e6e8',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+                <MaterialIcons 
+                  name="person-outline" 
+                  size={20} 
+                  color={theme === 'dark' ? '#d7dadc' : '#878A8C'} 
+                />
+              </View>
+            </TouchableOpacity>
+          ),
         }}
       >
         <Tabs.Screen
           name="index"
           options={{
             title: 'Home',
-            headerTitle: 'Reddit',            headerTitleStyle: { color: '#FF4500' },            tabBarIcon: ({ color }) => <AntDesign name="home" size={24} color={color} />,
+            headerTitle: 'Reddit',
+            headerTitleStyle: { color: '#FF4500' },
+            tabBarIcon: ({ color }) => <AntDesign name="home" size={24} color={color} />,
           }}
         />
         <Tabs.Screen
@@ -86,5 +111,5 @@ export default function TabLayout() {
 
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
     </>
-  )
+  );
 }
