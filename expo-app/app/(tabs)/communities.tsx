@@ -3,6 +3,7 @@ import { View, Text, TextInput, FlatList, Pressable, StyleSheet, Image } from 'r
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useTheme } from '../../contexts/ThemeContext';
 
 // Mock community data
 const COMMUNITIES = [
@@ -19,8 +20,15 @@ const COMMUNITIES = [
 ];
 
 export default function GroupSelector() {
+  const { theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCommunity, setSelectedCommunity] = useState<string | null>(null);
+
+  const colors = {
+    dark: { bg: '#030303', text: '#d7dadc', secondaryText: '#818384', border: '#343536', inputBg: '#1a1a1b' },
+    light: { bg: '#ffffff', text: '#030303', secondaryText: '#7c7c7c', border: '#e5e5e5', inputBg: '#f6f7f8' },
+  };
+  const currentColors = colors[theme];
 
   const filteredCommunities = COMMUNITIES.filter(community =>
     community.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -39,7 +47,8 @@ export default function GroupSelector() {
     <Pressable
       style={[
         styles.communityItem,
-        selectedCommunity === item.name && styles.selectedCommunity
+        selectedCommunity === item.name && styles.selectedCommunity,
+        { backgroundColor: selectedCommunity === item.name ? (theme === 'dark' ? '#1a1a1b' : '#FFF4F0') : 'transparent' }
       ]}
       onPress={() => handleSelectCommunity(item.name)}
     >
@@ -47,11 +56,11 @@ export default function GroupSelector() {
         <Text style={styles.iconText}>{item.icon}</Text>
       </View>
       <View style={styles.communityInfo}>
-        <Text style={styles.communityName}>r/{item.name}</Text>
-        <Text style={styles.communityDescription} numberOfLines={1}>
+        <Text style={[styles.communityName, { color: currentColors.text }]}>r/{item.name}</Text>
+        <Text style={[styles.communityDescription, { color: currentColors.secondaryText }]} numberOfLines={1}>
           {item.description}
         </Text>
-        <Text style={styles.memberCount}>{item.members} members</Text>
+        <Text style={[styles.memberCount, { color: currentColors.secondaryText }]}>{item.members} members</Text>
       </View>
       {selectedCommunity === item.name && (
         <AntDesign name="check" size={24} color="#FF4500" />
@@ -60,7 +69,7 @@ export default function GroupSelector() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: currentColors.bg }]}>
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.closeButton}>
@@ -75,19 +84,19 @@ export default function GroupSelector() {
       </View>
 
       {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <MaterialIcons name="search" size={24} color="#7C7C7C" />
+      <View style={[styles.searchContainer, { backgroundColor: currentColors.inputBg }]}>
+        <MaterialIcons name="search" size={24} color={currentColors.secondaryText} />
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { color: currentColors.text }]}
           placeholder="Search communities"
-          placeholderTextColor="#7C7C7C"
+          placeholderTextColor={currentColors.secondaryText}
           value={searchQuery}
           onChangeText={setSearchQuery}
           autoCapitalize="none"
         />
         {searchQuery.length > 0 && (
           <Pressable onPress={() => setSearchQuery('')}>
-            <AntDesign name="close" size={18} color="#7C7C7C" />
+            <AntDesign name="close" size={18} color={currentColors.secondaryText} />
           </Pressable>
         )}
       </View>
@@ -101,7 +110,7 @@ export default function GroupSelector() {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No communities found</Text>
+            <Text style={[styles.emptyText, { color: currentColors.secondaryText }]}>No communities found</Text>
           </View>
         }
       />
@@ -112,7 +121,6 @@ export default function GroupSelector() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
   },
   header: {
     flexDirection: 'row',
@@ -139,7 +147,6 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F6F7F8',
     marginHorizontal: 16,
     marginVertical: 12,
     paddingHorizontal: 12,
@@ -150,7 +157,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: 'black',
   },
   listContainer: {
     paddingHorizontal: 16,

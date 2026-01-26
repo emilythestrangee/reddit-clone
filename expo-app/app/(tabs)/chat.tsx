@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, FlatList, Pressable, StyleSheet, Image, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../contexts/ThemeContext';
 
 // Mock chat data
 const CHATS = [
@@ -74,15 +75,22 @@ const CHATS = [
 ];
 
 export default function ChatScreen() {
+  const { theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+
+  const colors = {
+    dark: { bg: '#030303', text: '#d7dadc', secondaryText: '#818384', border: '#343536', headerBg: '#1a1a1b', inputBg: '#1a1a1b' },
+    light: { bg: '#ffffff', text: '#030303', secondaryText: '#7c7c7c', border: '#e5e5e5', headerBg: '#ffffff', inputBg: '#f6f7f8' },
+  };
+  const currentColors = colors[theme];
 
   const filteredChats = CHATS.filter(chat =>
     chat.username.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const renderChatItem = ({ item }: { item: typeof CHATS[0] }) => (
-    <Pressable style={styles.chatItem}>
+    <Pressable style={[styles.chatItem, { borderBottomColor: currentColors.border, backgroundColor: currentColors.bg }]}>
       <View style={styles.avatarContainer}>
         <Text style={styles.avatarText}>{item.avatar}</Text>
         {item.unread && <View style={styles.onlineIndicator} />}
@@ -90,12 +98,12 @@ export default function ChatScreen() {
       
       <View style={styles.chatContent}>
         <View style={styles.chatHeader}>
-          <Text style={styles.username}>{item.username}</Text>
-          <Text style={styles.timestamp}>{item.timestamp}</Text>
+          <Text style={[styles.username, { color: currentColors.text }]}>{item.username}</Text>
+          <Text style={[styles.timestamp, { color: currentColors.secondaryText }]}>{item.timestamp}</Text>
         </View>
         <View style={styles.messageRow}>
           <Text 
-            style={[styles.lastMessage, item.unread && styles.unreadMessage]} 
+            style={[styles.lastMessage, item.unread && styles.unreadMessage, { color: item.unread ? currentColors.text : currentColors.secondaryText }]} 
             numberOfLines={1}
           >
             {item.lastMessage}
@@ -111,16 +119,16 @@ export default function ChatScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: currentColors.bg }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: currentColors.border, backgroundColor: currentColors.headerBg }]}>
         {showSearch ? (
-          <View style={styles.searchBar}>
-            <MaterialIcons name="search" size={24} color="#7C7C7C" />
+          <View style={[styles.searchBar, { backgroundColor: currentColors.inputBg }]}>
+            <MaterialIcons name="search" size={24} color={currentColors.secondaryText} />
             <TextInput
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: currentColors.text }]}
               placeholder="Search chats"
-              placeholderTextColor="#7C7C7C"
+              placeholderTextColor={currentColors.secondaryText}
               value={searchQuery}
               onChangeText={setSearchQuery}
               autoFocus
@@ -129,21 +137,21 @@ export default function ChatScreen() {
               setShowSearch(false);
               setSearchQuery('');
             }}>
-              <MaterialIcons name="close" size={24} color="#7C7C7C" />
+              <MaterialIcons name="close" size={24} color={currentColors.secondaryText} />
             </Pressable>
           </View>
         ) : (
           <>
-            <Text style={styles.headerTitle}>Chats</Text>
+            <Text style={[styles.headerTitle, { color: currentColors.text }]}>Chats</Text>
             <View style={styles.headerRight}>
               <Pressable onPress={() => setShowSearch(true)} style={styles.iconButton}>
-                <MaterialIcons name="search" size={24} color="black" />
+                <MaterialIcons name="search" size={24} color={currentColors.text} />
               </Pressable>
               <Pressable style={styles.iconButton}>
-                <Ionicons name="create-outline" size={24} color="black" />
+                <Ionicons name="create-outline" size={24} color={currentColors.text} />
               </Pressable>
               <Pressable style={styles.iconButton}>
-                <MaterialIcons name="more-vert" size={24} color="black" />
+                <MaterialIcons name="more-vert" size={24} color={currentColors.text} />
               </Pressable>
             </View>
           </>
@@ -159,9 +167,9 @@ export default function ChatScreen() {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Ionicons name="chatbubbles-outline" size={64} color="#D0D0D0" />
-            <Text style={styles.emptyTitle}>No chats yet</Text>
-            <Text style={styles.emptySubtitle}>Start a conversation with someone!</Text>
+            <Ionicons name="chatbubbles-outline" size={64} color={currentColors.secondaryText} />
+            <Text style={[styles.emptyTitle, { color: currentColors.text }]}>No chats yet</Text>
+            <Text style={[styles.emptySubtitle, { color: currentColors.secondaryText }]}>Start a conversation with someone!</Text>
           </View>
         }
       />
@@ -177,7 +185,6 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
   },
   header: {
     flexDirection: 'row',
@@ -186,7 +193,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
   },
   headerTitle: {
     fontSize: 22,
@@ -204,7 +210,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F6F7F8',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 25,
@@ -213,7 +218,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: 'black',
   },
   listContainer: {
     flexGrow: 1,
@@ -224,7 +228,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
   },
   avatarContainer: {
     position: 'relative',
@@ -274,11 +277,9 @@ const styles = StyleSheet.create({
   },
   lastMessage: {
     fontSize: 14,
-    color: '#7C7C7C',
     flex: 1,
   },
   unreadMessage: {
-    color: 'black',
     fontWeight: '500',
   },
   unreadBadge: {
@@ -305,11 +306,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     marginTop: 16,
-    color: '#1C1C1C',
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#7C7C7C',
     marginTop: 8,
   },
   fab: {

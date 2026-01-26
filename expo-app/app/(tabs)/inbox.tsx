@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, FlatList, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../contexts/ThemeContext';
 
 type NotificationType = 'upvote' | 'comment' | 'reply' | 'award' | 'mention' | 'follow';
 
@@ -102,8 +103,15 @@ const NOTIFICATIONS: Notification[] = [
 const TABS = ['All', 'Mentions', 'Comments', 'Upvotes', 'Replies'];
 
 export default function InboxScreen() {
+  const { theme } = useTheme();
   const [selectedTab, setSelectedTab] = useState('All');
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
+
+  const colors = {
+    dark: { bg: '#030303', text: '#d7dadc', secondaryText: '#818384', border: '#343536', tabBg: '#1a1a1b', unreadBg: '#1a1a1b' },
+    light: { bg: '#ffffff', text: '#030303', secondaryText: '#7c7c7c', border: '#e5e5e5', tabBg: '#f6f7f8', unreadBg: '#f8fafe' },
+  };
+  const currentColors = colors[theme];
 
   const getNotificationIcon = (type: NotificationType) => {
     switch (type) {
@@ -141,7 +149,7 @@ export default function InboxScreen() {
     
     return (
       <Pressable
-        style={[styles.notificationItem, !item.isRead && styles.unreadNotification]}
+        style={[styles.notificationItem, !item.isRead && styles.unreadNotification, { borderBottomColor: currentColors.border, backgroundColor: !item.isRead ? currentColors.unreadBg : currentColors.bg }]}
         onPress={() => markAsRead(item.id)}
       >
         <View style={styles.notificationLeft}>
@@ -154,17 +162,17 @@ export default function InboxScreen() {
         </View>
 
         <View style={styles.notificationContent}>
-          <Text style={styles.notificationText}>
-            <Text style={styles.username}>{item.username}</Text>
+          <Text style={[styles.notificationText, { color: currentColors.text }]}>
+            <Text style={[styles.username, { color: currentColors.text }]}>{item.username}</Text>
             {' '}
             {item.content}
           </Text>
           {item.post && (
-            <Text style={styles.postSnippet} numberOfLines={2}>
+            <Text style={[styles.postSnippet, { color: currentColors.secondaryText }]} numberOfLines={2}>
               {item.post}
             </Text>
           )}
-          <Text style={styles.timestamp}>{item.timestamp} ago</Text>
+          <Text style={[styles.timestamp, { color: currentColors.secondaryText }]}>{item.timestamp} ago</Text>
         </View>
 
         {!item.isRead && <View style={styles.unreadDot} />}
@@ -173,30 +181,30 @@ export default function InboxScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: currentColors.bg }]}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Inbox</Text>
+      <View style={[styles.header, { borderBottomColor: currentColors.border }]}>
+        <Text style={[styles.headerTitle, { color: currentColors.text }]}>Inbox</Text>
         <View style={styles.headerRight}>
           <Pressable style={styles.iconButton}>
-            <MaterialIcons name="search" size={24} color="black" />
+            <MaterialIcons name="search" size={24} color={currentColors.text} />
           </Pressable>
           {unreadCount > 0 && (
             <Pressable style={styles.iconButton} onPress={markAllAsRead}>
-              <MaterialIcons name="done-all" size={24} color="black" />
+              <MaterialIcons name="done-all" size={24} color={currentColors.text} />
             </Pressable>
           )}
           <Pressable style={styles.iconButton}>
-            <MaterialIcons name="more-vert" size={24} color="black" />
+            <MaterialIcons name="more-vert" size={24} color={currentColors.text} />
           </Pressable>
         </View>
       </View>
 
       {/* Unread Badge */}
       {unreadCount > 0 && (
-        <View style={styles.unreadBanner}>
+        <View style={[styles.unreadBanner, { backgroundColor: theme === 'dark' ? '#1a1a1b' : '#FFF4F0' }]}>
           <MaterialIcons name="notifications-active" size={20} color="#FF4500" />
-          <Text style={styles.unreadBannerText}>
+          <Text style={[styles.unreadBannerText, { color: theme === 'dark' ? '#818384' : '#FF4500' }]}>
             You have {unreadCount} unread notification{unreadCount > 1 ? 's' : ''}
           </Text>
         </View>
@@ -206,16 +214,16 @@ export default function InboxScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={styles.tabsContainer}
+        style={[styles.tabsContainer, { borderBottomColor: currentColors.border }]}
         contentContainerStyle={styles.tabsContent}
       >
         {TABS.map(tab => (
           <Pressable
             key={tab}
-            style={[styles.tab, selectedTab === tab && styles.activeTab]}
+            style={[styles.tab, selectedTab === tab && styles.activeTab, { backgroundColor: selectedTab === tab ? '#0079D3' : currentColors.tabBg }]}
             onPress={() => setSelectedTab(tab)}
           >
-            <Text style={[styles.tabText, selectedTab === tab && styles.activeTabText]}>
+            <Text style={[styles.tabText, selectedTab === tab && styles.activeTabText, { color: selectedTab === tab ? 'white' : currentColors.secondaryText }]}>
               {tab}
             </Text>
           </Pressable>
@@ -231,9 +239,9 @@ export default function InboxScreen() {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Ionicons name="notifications-off-outline" size={64} color="#D0D0D0" />
-            <Text style={styles.emptyTitle}>No notifications</Text>
-            <Text style={styles.emptySubtitle}>
+            <Ionicons name="notifications-off-outline" size={64} color={currentColors.secondaryText} />
+            <Text style={[styles.emptyTitle, { color: currentColors.text }]}>No notifications</Text>
+            <Text style={[styles.emptySubtitle, { color: currentColors.secondaryText }]}>
               You're all caught up! Check back later.
             </Text>
           </View>
@@ -246,7 +254,6 @@ export default function InboxScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
   },
   header: {
     flexDirection: 'row',
@@ -255,7 +262,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
   },
   headerTitle: {
     fontSize: 22,
@@ -272,19 +278,16 @@ const styles = StyleSheet.create({
   unreadBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF4F0',
     paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 8,
   },
   unreadBannerText: {
     fontSize: 14,
-    color: '#FF4500',
     fontWeight: '500',
   },
   tabsContainer: {
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
   },
   tabsContent: {
     paddingHorizontal: 16,
@@ -295,7 +298,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#F6F7F8',
   },
   activeTab: {
     backgroundColor: '#0079D3',
@@ -303,7 +305,6 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#7C7C7C',
   },
   activeTabText: {
     color: 'white',
@@ -317,10 +318,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
   },
   unreadNotification: {
-    backgroundColor: '#F8FAFE',
   },
   notificationLeft: {
     marginRight: 12,
@@ -355,20 +354,17 @@ const styles = StyleSheet.create({
   notificationText: {
     fontSize: 14,
     lineHeight: 20,
-    color: '#1C1C1C',
   },
   username: {
     fontWeight: '600',
   },
   postSnippet: {
     fontSize: 13,
-    color: '#7C7C7C',
     marginTop: 4,
     fontStyle: 'italic',
   },
   timestamp: {
     fontSize: 12,
-    color: '#7C7C7C',
     marginTop: 4,
   },
   unreadDot: {
@@ -389,11 +385,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     marginTop: 16,
-    color: '#1C1C1C',
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#7C7C7C',
     marginTop: 8,
     textAlign: 'center',
   },

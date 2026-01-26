@@ -3,10 +3,18 @@ import { View, Text, Pressable, StyleSheet, TextInput, KeyboardAvoidingView, Pla
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AntDesign } from '@expo/vector-icons';
 import { Link, router } from "expo-router"
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function CreateScreen() {
+  const { theme } = useTheme();
   const [title, setTitle] = useState<string>('')
   const [body, setBody] = useState<string>('')
+
+  const colors = {
+    dark: { bg: '#030303', text: '#000000', inputBg: '#1a1a1b', border: '#343536' },
+    light: { bg: '#ffffff', text: '#030303', inputBg: '#f6f7f8', border: '#e5e5e5' },
+  };
+  const currentColors = colors[theme];
 
   const goBack = () => {
     setTitle('')
@@ -15,11 +23,11 @@ export default function CreateScreen() {
   }
   
   return (
-    <SafeAreaView style={{ backgroundColor: 'white', flex: 1, paddingHorizontal: 10 }}>
+    <SafeAreaView style={{ backgroundColor: currentColors.bg, flex: 1, paddingHorizontal: 10 }}>
 
       {/* Header */}
       <View style={{ flexDirection: 'row', alignItems: 'center'}}>
-        <AntDesign name="close" size={30} color="black" onPress={() => router.back()} />
+        <AntDesign name="close" size={30} color={currentColors.text} onPress={() => router.back()} />
         <Pressable onPress={() => console.error('Pressed')} style={{ marginLeft: 'auto'}}>
           <Text style={styles.postText}>Post</Text>
         </Pressable>
@@ -31,21 +39,24 @@ export default function CreateScreen() {
       <Link href={"groupSelector" as any} asChild>
         <Pressable style={styles.communityContainer}>
           <Text style={styles.rStyles}>r/</Text>
-          <Text style={{ fontWeight: '600'}}>Select a Community</Text>
+          <Text style={{ fontWeight: '600', color: currentColors.text }}>Select a Community</Text>
         </Pressable>
       </Link>
 
       {/* Post Input */}
       <TextInput
         placeholder="Title"
-        style={{ fontSize: 20, fontWeight: 'bold', paddingVertical: 20}} 
+        placeholderTextColor={theme === 'dark' ? '#818384' : '#a0a0a0'}
+        style={{ fontSize: 20, fontWeight: 'bold', paddingVertical: 20, color: currentColors.text }} 
         value={title}
         onChangeText={(text) => setTitle(text)} 
         multiline 
         scrollEnabled={false} />
 
       <TextInput
-        placeholder="body text (optional)" 
+        placeholder="body text (optional)"
+        placeholderTextColor={theme === 'dark' ? '#818384' : '#a0a0a0'}
+        style={{ color: currentColors.text }} 
         value={body}
         onChangeText={(text) => setBody(text)} 
         multiline
