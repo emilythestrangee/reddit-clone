@@ -1,4 +1,4 @@
-// app/auth/page.tsx - With Dark Theme Support
+// app/auth/page.tsx - With Dark Theme Support and Onboarding
 import {
   View,
   Text,
@@ -56,15 +56,25 @@ export default function AuthPage() {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    // Mock successful auth
     setIsLoading(false);
-    router.back();
+    
+    // If signing up, go to onboarding. If logging in, go back
+    if (!isLogin) {
+      router.push('../../onboardingscreen/page');
+    } else {
+      router.back();
+    }
   };
 
   const handleSocialLogin = (provider: string) => {
     console.log(`Logging in with ${provider}`);
-    // Mock social login
-    router.back();
+    // For social login during signup, go to onboarding
+    // For login, just go back
+    if (!isLogin) {
+      router.push('../../onboardingscreen/page');
+    } else {
+      router.back();
+    }
   };
 
   // Theme colors

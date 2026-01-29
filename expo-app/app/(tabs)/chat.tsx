@@ -1,113 +1,111 @@
 import { useState } from 'react';
-import { View, Text, FlatList, Pressable, StyleSheet, Image, TextInput } from 'react-native';
+import { View, Text, FlatList, Pressable, StyleSheet, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MaterialIcons, Ionicons } from '@expo/vector-icons';
+import { MaterialIcons, Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 
 // Mock chat data
 const CHATS = [
   {
     id: '1',
-    username: 'u/TechEnthusiast',
+    username: 'TechEnthusiast',
+    displayName: 'John Doe',
     avatar: '👨‍💻',
     lastMessage: 'Thanks for the help with that React Native issue!',
     timestamp: '2m',
     unread: true,
-    unreadCount: 2,
+    unreadCount: 3,
+    isDirect: true,
   },
   {
     id: '2',
-    username: 'u/GamingPro2024',
+    username: 'GamingPro2024',
+    displayName: 'GamerPro',
     avatar: '🎮',
-    lastMessage: 'Did you see the new game announcement?',
+    lastMessage: 'Check out this new game trailer!',
     timestamp: '15m',
     unread: false,
-  },
-  {
-    id: '3',
-    username: 'u/PhotoLover',
-    avatar: '📸',
-    lastMessage: 'Those landscape photos are amazing!',
-    timestamp: '1h',
-    unread: true,
-    unreadCount: 1,
-  },
-  {
-    id: '4',
-    username: 'u/CodingNinja',
-    avatar: '⚡',
-    lastMessage: 'Check out this algorithm I came up with',
-    timestamp: '3h',
-    unread: false,
-  },
-  {
-    id: '5',
-    username: 'u/FitnessFreak',
-    avatar: '💪',
-    lastMessage: 'Want to join me for a workout tomorrow?',
-    timestamp: '5h',
-    unread: false,
-  },
-  {
-    id: '6',
-    username: 'u/MovieBuff',
-    avatar: '🎬',
-    lastMessage: 'Have you watched the new sci-fi movie?',
-    timestamp: '1d',
-    unread: false,
-  },
-  {
-    id: '7',
-    username: 'u/MusicMania',
-    avatar: '🎵',
-    lastMessage: 'This album is fire! 🔥',
-    timestamp: '2d',
-    unread: false,
-  },
-  {
-    id: '8',
-    username: 'u/BookReader',
-    avatar: '📚',
-    lastMessage: 'Just finished reading that book you recommended',
-    timestamp: '3d',
-    unread: false,
+    isDirect: true,
   },
 ];
+
 
 export default function ChatScreen() {
   const { theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
-  const [showSearch, setShowSearch] = useState(false);
 
   const colors = {
-    dark: { bg: '#030303', text: '#d7dadc', secondaryText: '#818384', border: '#343536', headerBg: '#1a1a1b', inputBg: '#1a1a1b' },
-    light: { bg: '#ffffff', text: '#030303', secondaryText: '#7c7c7c', border: '#e5e5e5', headerBg: '#ffffff', inputBg: '#f6f7f8' },
+    dark: {
+      bg: '#030303',
+      text: '#d7dadc',
+      secondaryText: '#818384',
+      border: '#343536',
+      inputBg: '#1a1a1b',
+      cardBg: '#1a1a1b',
+    },
+    light: {
+      bg: '#ffffff',
+      text: '#030303',
+      secondaryText: '#7c7c7c',
+      border: '#e5e5e5',
+      inputBg: '#f6f7f8',
+      cardBg: '#ffffff',
+    },
   };
+
   const currentColors = colors[theme];
 
-  const filteredChats = CHATS.filter(chat =>
-    chat.username.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredChats = CHATS.filter(
+    chat =>
+      chat.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      chat.displayName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const renderChatItem = ({ item }: { item: typeof CHATS[0] }) => (
-    <Pressable style={[styles.chatItem, { borderBottomColor: currentColors.border, backgroundColor: currentColors.bg }]}>
-      <View style={styles.avatarContainer}>
+  const renderChatItem = ({ item }: any) => (
+    <Pressable
+      style={[
+        styles.chatItem,
+        {
+          backgroundColor: item.unread
+            ? theme === 'dark'
+              ? '#1a2c3a'
+              : '#FFF4F0'
+            : currentColors.cardBg,
+          borderBottomColor: currentColors.border,
+        },
+      ]}
+    >
+      <View style={styles.avatar}>
         <Text style={styles.avatarText}>{item.avatar}</Text>
-        {item.unread && <View style={styles.onlineIndicator} />}
+        {item.unread && <View style={styles.unreadDot} />}
       </View>
-      
+
       <View style={styles.chatContent}>
         <View style={styles.chatHeader}>
-          <Text style={[styles.username, { color: currentColors.text }]}>{item.username}</Text>
-          <Text style={[styles.timestamp, { color: currentColors.secondaryText }]}>{item.timestamp}</Text>
+          <Text style={[styles.displayName, { color: currentColors.text }]}>
+            {item.displayName}
+          </Text>
+          <Text style={[styles.timestamp, { color: currentColors.secondaryText }]}>
+            {item.timestamp}
+          </Text>
         </View>
+
         <View style={styles.messageRow}>
-          <Text 
-            style={[styles.lastMessage, item.unread && styles.unreadMessage, { color: item.unread ? currentColors.text : currentColors.secondaryText }]} 
+          <Text
             numberOfLines={1}
+            style={[
+              styles.lastMessage,
+              {
+                color: item.unread
+                  ? currentColors.text
+                  : currentColors.secondaryText,
+                fontWeight: item.unread ? '600' : '400',
+              },
+            ]}
           >
             {item.lastMessage}
           </Text>
+
           {item.unread && item.unreadCount && (
             <View style={styles.unreadBadge}>
               <Text style={styles.unreadCount}>{item.unreadCount}</Text>
@@ -119,212 +117,158 @@ export default function ChatScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: currentColors.bg }]}>
-      {/* Header */}
-      <View style={[styles.header, { borderBottomColor: currentColors.border, backgroundColor: currentColors.headerBg }]}>
-        {showSearch ? (
-          <View style={[styles.searchBar, { backgroundColor: currentColors.inputBg }]}>
-            <MaterialIcons name="search" size={24} color={currentColors.secondaryText} />
-            <TextInput
-              style={[styles.searchInput, { color: currentColors.text }]}
-              placeholder="Search chats"
-              placeholderTextColor={currentColors.secondaryText}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              autoFocus
-            />
-            <Pressable onPress={() => {
-              setShowSearch(false);
-              setSearchQuery('');
-            }}>
-              <MaterialIcons name="close" size={24} color={currentColors.secondaryText} />
-            </Pressable>
-          </View>
-        ) : (
-          <>
-            <Text style={[styles.headerTitle, { color: currentColors.text }]}>Chats</Text>
-            <View style={styles.headerRight}>
-              <Pressable onPress={() => setShowSearch(true)} style={styles.iconButton}>
-                <MaterialIcons name="search" size={24} color={currentColors.text} />
-              </Pressable>
-              <Pressable style={styles.iconButton}>
-                <Ionicons name="create-outline" size={24} color={currentColors.text} />
-              </Pressable>
-              <Pressable style={styles.iconButton}>
-                <MaterialIcons name="more-vert" size={24} color={currentColors.text} />
-              </Pressable>
-            </View>
-          </>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: currentColors.bg }]}
+      edges={['left', 'right']} // 🔥 NO TOP, NO BOTTOM SAFE AREA
+    >
+      {/* Search Bar */}
+      <View style={[styles.searchContainer, { backgroundColor: currentColors.inputBg }]}>
+        <MaterialIcons name="search" size={22} color={currentColors.secondaryText} />
+        <TextInput
+          style={[styles.searchInput, { color: currentColors.text }]}
+          placeholder="Search messages"
+          placeholderTextColor={currentColors.secondaryText}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        {searchQuery.length > 0 && (
+          <Pressable onPress={() => setSearchQuery('')}>
+            <MaterialIcons name="close" size={20} color={currentColors.secondaryText} />
+          </Pressable>
         )}
       </View>
 
-      {/* Chats List */}
+      {/* Chat List */}
       <FlatList
         data={filteredChats}
         renderItem={renderChatItem}
         keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 24 }} // 🔥 NO BLACK BAR
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Ionicons name="chatbubbles-outline" size={64} color={currentColors.secondaryText} />
-            <Text style={[styles.emptyTitle, { color: currentColors.text }]}>No chats yet</Text>
-            <Text style={[styles.emptySubtitle, { color: currentColors.secondaryText }]}>Start a conversation with someone!</Text>
+            <Ionicons
+              name="chatbubbles-outline"
+              size={64}
+              color={currentColors.secondaryText}
+            />
+            <Text style={[styles.emptyTitle, { color: currentColors.text }]}>
+              No messages
+            </Text>
           </View>
         }
       />
 
-      {/* Floating Action Button */}
+      {/* FAB */}
       <Pressable style={styles.fab}>
-        <Ionicons name="create" size={24} color="white" />
+        <Ionicons name="create-outline" size={24} color="#fff" />
       </Pressable>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
+  container: { flex: 1 },
+
+  searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    margin: 16,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  iconButton: {
-    padding: 8,
-  },
-  searchBar: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
     borderRadius: 25,
-    gap: 8,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
+    marginLeft: 12,
   },
-  listContainer: {
-    flexGrow: 1,
-  },
+
   chatItem: {
     flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
+    paddingVertical: 14,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  avatarContainer: {
-    position: 'relative',
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#f0f0f0',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 12,
   },
   avatarText: {
-    fontSize: 40,
-    width: 50,
-    height: 50,
-    textAlign: 'center',
-    lineHeight: 50,
-    backgroundColor: '#F0F0F0',
-    borderRadius: 25,
+    fontSize: 22,
   },
-  onlineIndicator: {
+  unreadDot: {
     position: 'absolute',
-    bottom: 2,
-    right: 2,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
+    top: 0,
+    right: 0,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: '#46D160',
-    borderWidth: 2,
-    borderColor: 'white',
   },
-  chatContent: {
-    flex: 1,
-  },
+
+  chatContent: { flex: 1 },
   chatHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
     marginBottom: 4,
   },
-  username: {
-    fontSize: 15,
+  displayName: {
+    fontSize: 16,
     fontWeight: '600',
   },
   timestamp: {
-    fontSize: 13,
-    color: '#7C7C7C',
+    fontSize: 12,
   },
+
   messageRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
   },
   lastMessage: {
-    fontSize: 14,
     flex: 1,
-  },
-  unreadMessage: {
-    fontWeight: '500',
+    fontSize: 14,
+    marginRight: 8,
   },
   unreadBadge: {
-    backgroundColor: '#FF4500',
-    borderRadius: 10,
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    marginLeft: 8,
     minWidth: 20,
-    alignItems: 'center',
-  },
-  unreadCount: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  emptyContainer: {
-    flex: 1,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#FF4500',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  unreadCount: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+
+  emptyContainer: {
+    alignItems: 'center',
     paddingVertical: 80,
   },
   emptyTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '600',
-    marginTop: 16,
+    marginTop: 12,
   },
-  emptySubtitle: {
-    fontSize: 14,
-    marginTop: 8,
-  },
+
   fab: {
     position: 'absolute',
-    bottom: 24,
-    right: 24,
+    bottom: 20,
+    right: 20,
     width: 56,
     height: 56,
     borderRadius: 28,
     backgroundColor: '#FF4500',
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    elevation: 5,
   },
 });
