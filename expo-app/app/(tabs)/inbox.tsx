@@ -1,20 +1,21 @@
 import { useState } from 'react';
-import { View, Text, FlatList, Pressable, StyleSheet, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { MaterialIcons, Ionicons } from '@expo/vector-icons';
+import { View, Text, FlatList, Pressable, StyleSheet, ScrollView, TextInput } from 'react-native';
+import { MaterialIcons, Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 
-type NotificationType = 'upvote' | 'comment' | 'reply' | 'award' | 'mention' | 'follow';
+type NotificationType = 'upvote' | 'comment' | 'reply' | 'award' | 'mention' | 'follow' | 'post';
 
 interface Notification {
   id: string;
   type: NotificationType;
   username: string;
+  subreddit?: string;
   avatar: string;
   content: string;
   post?: string;
   timestamp: string;
   isRead: boolean;
+  isMessage?: boolean;
 }
 
 // Mock notification data
@@ -23,6 +24,7 @@ const NOTIFICATIONS: Notification[] = [
     id: '1',
     type: 'upvote',
     username: 'u/TechGuru',
+    subreddit: 'r/ReactNative',
     avatar: '👨‍💻',
     content: 'and 23 others upvoted your post',
     post: 'Why React Native is the best?',
@@ -33,9 +35,10 @@ const NOTIFICATIONS: Notification[] = [
     id: '2',
     type: 'comment',
     username: 'u/CodeMaster',
+    subreddit: 'r/programming',
     avatar: '⚡',
     content: 'commented on your post',
-    post: 'Best practices for React hooks?',
+    post: 'Best practices for React hooks? Great read!',
     timestamp: '1h',
     isRead: false,
   },
@@ -43,9 +46,10 @@ const NOTIFICATIONS: Notification[] = [
     id: '3',
     type: 'reply',
     username: 'u/DevExpert',
+    subreddit: 'r/ReactNative',
     avatar: '🔥',
-    content: 'replied to your comment in r/ReactNative',
-    post: 'I totally agree with your point about...',
+    content: 'replied to your comment',
+    post: 'I totally agree with your point about performance optimization...',
     timestamp: '2h',
     isRead: false,
   },
@@ -53,6 +57,7 @@ const NOTIFICATIONS: Notification[] = [
     id: '4',
     type: 'award',
     username: 'u/GenerousUser',
+    subreddit: 'r/webdev',
     avatar: '🎁',
     content: 'gave you the Helpful Award',
     post: 'Tutorial: Building a Reddit clone',
@@ -63,8 +68,9 @@ const NOTIFICATIONS: Notification[] = [
     id: '5',
     type: 'mention',
     username: 'u/FriendlyDev',
+    subreddit: 'r/programming',
     avatar: '👋',
-    content: 'mentioned you in r/programming',
+    content: 'mentioned you in a comment',
     post: 'Check out what @username built!',
     timestamp: '5h',
     isRead: true,
@@ -82,9 +88,10 @@ const NOTIFICATIONS: Notification[] = [
     id: '7',
     type: 'upvote',
     username: 'u/UpvoterPro',
+    subreddit: 'r/javascript',
     avatar: '👍',
     content: 'and 145 others upvoted your comment',
-    post: 'This is exactly what I was looking for!',
+    post: 'This is exactly what I was looking for! Thanks!',
     timestamp: '2d',
     isRead: true,
   },
@@ -92,43 +99,97 @@ const NOTIFICATIONS: Notification[] = [
     id: '8',
     type: 'reply',
     username: 'u/HelpfulRedditor',
+    subreddit: 'r/AskReddit',
     avatar: '💡',
-    content: 'replied to your comment in r/AskReddit',
-    post: "Here's another perspective on that...",
+    content: 'replied to your comment',
+    post: "Here's another perspective on that topic...",
     timestamp: '3d',
+    isRead: true,
+  },
+  {
+    id: '9',
+    type: 'post',
+    username: 'u/AutoModerator',
+    subreddit: 'r/ReactNative',
+    avatar: '🤖',
+    content: 'Your post was approved',
+    post: 'Weekly questions thread',
+    timestamp: '4d',
+    isRead: true,
+  },
+  {
+    id: '10',
+    type: 'post',
+    username: 'u/Reddit',
+    subreddit: 'r/announcements',
+    avatar: '📢',
+    content: 'New features coming to Reddit',
+    post: 'Introducing the new notification center',
+    timestamp: '1w',
     isRead: true,
   },
 ];
 
-const TABS = ['All', 'Mentions', 'Comments', 'Upvotes', 'Replies'];
+const TABS = [
+  { id: 'all', label: 'All', icon: 'notifications' },
+  { id: 'mentions', label: 'Mentions', icon: 'alternate-email' },
+  { id: 'comments', label: 'Comments', icon: 'comment' },
+  { id: 'upvotes', label: 'Upvotes', icon: 'arrow-upward' },
+  { id: 'replies', label: 'Replies', icon: 'reply' },
+  { id: 'messages', label: 'Messages', icon: 'chat-bubble' },
+];
 
 export default function InboxScreen() {
   const { theme } = useTheme();
-  const [selectedTab, setSelectedTab] = useState('All');
+  const [selectedTab, setSelectedTab] = useState('all');
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const colors = {
-    dark: { bg: '#030303', text: '#d7dadc', secondaryText: '#818384', border: '#343536', tabBg: '#1a1a1b', unreadBg: '#1a1a1b' },
-    light: { bg: '#ffffff', text: '#030303', secondaryText: '#7c7c7c', border: '#e5e5e5', tabBg: '#f6f7f8', unreadBg: '#f8fafe' },
+    dark: { 
+      bg: '#030303', 
+      text: '#d7dadc', 
+      secondaryText: '#818384', 
+      border: '#343536', 
+      headerBg: '#1a1a1b',
+      inputBg: '#1a1a1b',
+      tabBg: '#272729',
+      unreadBg: '#1a1a1b',
+      sectionBg: '#272729',
+    },
+    light: { 
+      bg: '#ffffff', 
+      text: '#030303', 
+      secondaryText: '#7c7c7c', 
+      border: '#e5e5e5', 
+      headerBg: '#ffffff',
+      inputBg: '#f6f7f8',
+      tabBg: '#f6f7f8',
+      unreadBg: '#f8fafe',
+      sectionBg: '#f6f7f8',
+    },
   };
   const currentColors = colors[theme];
 
   const getNotificationIcon = (type: NotificationType) => {
     switch (type) {
       case 'upvote':
-        return { name: 'arrow-upward', color: '#FF4500' };
+        return { name: 'arrow-upward', color: '#FF4500', bgColor: 'rgba(255, 69, 0, 0.1)' };
       case 'comment':
-        return { name: 'comment', color: '#0079D3' };
+        return { name: 'comment', color: '#0079D3', bgColor: 'rgba(0, 121, 211, 0.1)' };
       case 'reply':
-        return { name: 'reply', color: '#0079D3' };
+        return { name: 'reply', color: '#0079D3', bgColor: 'rgba(0, 121, 211, 0.1)' };
       case 'award':
-        return { name: 'emoji-events', color: '#FFD700' };
+        return { name: 'emoji-events', color: '#FFD700', bgColor: 'rgba(255, 215, 0, 0.1)' };
       case 'mention':
-        return { name: 'alternate-email', color: '#FF4500' };
+        return { name: 'alternate-email', color: '#FF4500', bgColor: 'rgba(255, 69, 0, 0.1)' };
       case 'follow':
-        return { name: 'person-add', color: '#46D160' };
+        return { name: 'person-add', color: '#46D160', bgColor: 'rgba(70, 209, 96, 0.1)' };
+      case 'post':
+        return { name: 'post-add', color: '#24A0ED', bgColor: 'rgba(36, 160, 237, 0.1)' };
       default:
-        return { name: 'notifications', color: '#7C7C7C' };
+        return { name: 'notifications', color: '#7C7C7C', bgColor: 'rgba(124, 124, 124, 0.1)' };
     }
   };
 
@@ -144,110 +205,159 @@ export default function InboxScreen() {
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
+  const filteredNotifications = notifications.filter(notification => {
+    if (searchQuery) {
+      return notification.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             notification.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             (notification.post && notification.post.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+    
+    if (selectedTab === 'all') return true;
+    if (selectedTab === 'upvotes') return notification.type === 'upvote';
+    if (selectedTab === 'comments') return notification.type === 'comment';
+    if (selectedTab === 'replies') return notification.type === 'reply';
+    if (selectedTab === 'mentions') return notification.type === 'mention';
+    if (selectedTab === 'messages') return notification.isMessage;
+    return true;
+  });
+
   const renderNotificationItem = ({ item }: { item: Notification }) => {
     const icon = getNotificationIcon(item.type);
     
     return (
       <Pressable
-        style={[styles.notificationItem, !item.isRead && styles.unreadNotification, { borderBottomColor: currentColors.border, backgroundColor: !item.isRead ? currentColors.unreadBg : currentColors.bg }]}
+        style={[
+          styles.notificationItem,
+          { 
+            borderBottomColor: currentColors.border,
+            backgroundColor: item.isRead ? currentColors.bg : currentColors.unreadBg,
+          },
+          !item.isRead && styles.unreadNotification,
+        ]}
         onPress={() => markAsRead(item.id)}
       >
         <View style={styles.notificationLeft}>
-          <View style={styles.avatarContainer}>
-            <Text style={styles.avatarText}>{item.avatar}</Text>
-            <View style={[styles.iconBadge, { backgroundColor: icon.color }]}>
-              <MaterialIcons name={icon.name as any} size={12} color="white" />
-            </View>
+          <View style={[styles.iconContainer, { backgroundColor: icon.bgColor }]}>
+            <MaterialIcons name={icon.name as any} size={20} color={icon.color} />
           </View>
         </View>
 
         <View style={styles.notificationContent}>
-          <Text style={[styles.notificationText, { color: currentColors.text }]}>
-            <Text style={[styles.username, { color: currentColors.text }]}>{item.username}</Text>
-            {' '}
+          <View style={styles.notificationHeader}>
+            <Text style={[styles.username, { color: currentColors.text }]}>
+              {item.username}
+            </Text>
+            {item.subreddit && (
+              <>
+                <Text style={[styles.dot, { color: currentColors.secondaryText }]}>•</Text>
+                <Text style={[styles.subreddit, { color: currentColors.secondaryText }]}>
+                  {item.subreddit}
+                </Text>
+              </>
+            )}
+          </View>
+          
+          <Text style={[styles.contentText, { color: currentColors.text }]}>
             {item.content}
           </Text>
+          
           {item.post && (
-            <Text style={[styles.postSnippet, { color: currentColors.secondaryText }]} numberOfLines={2}>
+            <Text 
+              style={[styles.postPreview, { color: currentColors.secondaryText }]} 
+              numberOfLines={2}
+            >
               {item.post}
             </Text>
           )}
-          <Text style={[styles.timestamp, { color: currentColors.secondaryText }]}>{item.timestamp} ago</Text>
+          
+          <View style={styles.notificationFooter}>
+            <Text style={[styles.timestamp, { color: currentColors.secondaryText }]}>
+              {item.timestamp}
+            </Text>
+            
+            {!item.isRead && (
+              <View style={styles.unreadBadge}>
+                <Text style={styles.unreadBadgeText}>new</Text>
+              </View>
+            )}
+          </View>
         </View>
-
-        {!item.isRead && <View style={styles.unreadDot} />}
       </Pressable>
     );
   };
 
+  const TabButton = ({ tab }: { tab: typeof TABS[0] }) => (
+    <Pressable
+      style={[
+        styles.tabButton,
+        selectedTab === tab.id && styles.activeTabButton,
+        { 
+          backgroundColor: selectedTab === tab.id ? 
+            (theme === 'dark' ? '#343536' : '#e5e5e5') : 
+            'transparent' 
+        }
+      ]}
+      onPress={() => setSelectedTab(tab.id)}
+    >
+      <MaterialIcons 
+        name={tab.icon as any} 
+        size={20} 
+        color={selectedTab === tab.id ? '#FF4500' : currentColors.secondaryText} 
+      />
+      <Text style={[
+        styles.tabLabel,
+        { color: selectedTab === tab.id ? currentColors.text : currentColors.secondaryText }
+      ]}>
+        {tab.label}
+      </Text>
+    </Pressable>
+  );
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: currentColors.bg }]}>
-      {/* Header */}
-      <View style={[styles.header, { borderBottomColor: currentColors.border }]}>
-        <Text style={[styles.headerTitle, { color: currentColors.text }]}>Inbox</Text>
-        <View style={styles.headerRight}>
-          <Pressable style={styles.iconButton}>
-            <MaterialIcons name="search" size={24} color={currentColors.text} />
-          </Pressable>
-          {unreadCount > 0 && (
-            <Pressable style={styles.iconButton} onPress={markAllAsRead}>
-              <MaterialIcons name="done-all" size={24} color={currentColors.text} />
-            </Pressable>
-          )}
-          <Pressable style={styles.iconButton}>
-            <MaterialIcons name="more-vert" size={24} color={currentColors.text} />
-          </Pressable>
-        </View>
+    <View style={[styles.container, { backgroundColor: currentColors.bg }]}>
+      {/* Tabs */}
+      <View style={[styles.tabsContainer, { backgroundColor: currentColors.tabBg }]}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tabsContent}
+        >
+          {TABS.map(tab => (
+            <TabButton key={tab.id} tab={tab} />
+          ))}
+        </ScrollView>
       </View>
 
-      {/* Unread Badge */}
-      {unreadCount > 0 && (
-        <View style={[styles.unreadBanner, { backgroundColor: theme === 'dark' ? '#1a1a1b' : '#FFF4F0' }]}>
-          <MaterialIcons name="notifications-active" size={20} color="#FF4500" />
-          <Text style={[styles.unreadBannerText, { color: theme === 'dark' ? '#818384' : '#FF4500' }]}>
-            You have {unreadCount} unread notification{unreadCount > 1 ? 's' : ''}
-          </Text>
-        </View>
-      )}
-
-      {/* Tabs */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={[styles.tabsContainer, { borderBottomColor: currentColors.border }]}
-        contentContainerStyle={styles.tabsContent}
-      >
-        {TABS.map(tab => (
-          <Pressable
-            key={tab}
-            style={[styles.tab, selectedTab === tab && styles.activeTab, { backgroundColor: selectedTab === tab ? '#0079D3' : currentColors.tabBg }]}
-            onPress={() => setSelectedTab(tab)}
-          >
-            <Text style={[styles.tabText, selectedTab === tab && styles.activeTabText, { color: selectedTab === tab ? 'white' : currentColors.secondaryText }]}>
-              {tab}
-            </Text>
-          </Pressable>
-        ))}
-      </ScrollView>
+      {/* Inbox Stats */}
+      <View style={[styles.statsContainer, { backgroundColor: currentColors.sectionBg }]}>
+        <Text style={[styles.statsText, { color: currentColors.secondaryText }]}>
+          • {unreadCount} unread • {notifications.length} total
+        </Text>
+        <Pressable onPress={markAllAsRead}>
+          <Text style={[styles.markReadText, { color: '#FF4500' }]}>Mark all as read</Text>
+        </Pressable>
+      </View>
 
       {/* Notifications List */}
       <FlatList
-        data={notifications}
+        data={filteredNotifications}
         renderItem={renderNotificationItem}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Ionicons name="notifications-off-outline" size={64} color={currentColors.secondaryText} />
-            <Text style={[styles.emptyTitle, { color: currentColors.text }]}>No notifications</Text>
+            <MaterialIcons name="notifications-none" size={64} color={currentColors.secondaryText} />
+            <Text style={[styles.emptyTitle, { color: currentColors.text }]}>
+              No notifications
+            </Text>
             <Text style={[styles.emptySubtitle, { color: currentColors.secondaryText }]}>
-              You're all caught up! Check back later.
+              {searchQuery ? 'No results found' : 'You\'re all caught up!'}
             </Text>
           </View>
         }
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -255,140 +365,140 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
+  tabsContainer: {
+    paddingVertical: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#343536',
+  },
+  tabsContent: {
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  tabButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 6,
+  },
+  activeTabButton: {
+    backgroundColor: 'rgba(255, 69, 0, 0.1)',
+  },
+  tabLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  statsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#343536',
   },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  iconButton: {
-    padding: 8,
-  },
-  unreadBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 8,
-  },
-  unreadBannerText: {
-    fontSize: 14,
+  statsText: {
+    fontSize: 13,
     fontWeight: '500',
   },
-  tabsContainer: {
-    borderBottomWidth: 1,
-  },
-  tabsContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    gap: 8,
-  },
-  tab: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  activeTab: {
-    backgroundColor: '#0079D3',
-  },
-  tabText: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  activeTabText: {
-    color: 'white',
+  markReadText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
   listContainer: {
-    flexGrow: 1,
+    paddingBottom: 20,
   },
   notificationItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
+    paddingVertical: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   unreadNotification: {
+    // Background is already set via backgroundColor prop
   },
   notificationLeft: {
     marginRight: 12,
   },
-  avatarContainer: {
-    position: 'relative',
-  },
-  avatarText: {
-    fontSize: 36,
-    width: 48,
-    height: 48,
-    textAlign: 'center',
-    lineHeight: 48,
-    backgroundColor: '#F0F0F0',
-    borderRadius: 24,
-  },
-  iconBadge: {
-    position: 'absolute',
-    bottom: -2,
-    right: -2,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'white',
   },
   notificationContent: {
     flex: 1,
   },
-  notificationText: {
-    fontSize: 14,
-    lineHeight: 20,
+  notificationHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    marginBottom: 4,
   },
   username: {
+    fontSize: 15,
     fontWeight: '600',
   },
-  postSnippet: {
+  dot: {
+    fontSize: 12,
+    marginHorizontal: 4,
+  },
+  subreddit: {
     fontSize: 13,
-    marginTop: 4,
-    fontStyle: 'italic',
+    fontWeight: '500',
+  },
+  contentText: {
+    fontSize: 15,
+    lineHeight: 20,
+    marginBottom: 6,
+  },
+  postPreview: {
+    fontSize: 14,
+    lineHeight: 18,
+    marginBottom: 8,
+    paddingLeft: 8,
+    borderLeftWidth: 2,
+    borderLeftColor: '#343536',
+  },
+  notificationFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   timestamp: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: 13,
+    fontWeight: '500',
   },
-  unreadDot: {
-    width: 8,
-    height: 8,
+  unreadBadge: {
+    backgroundColor: '#FF4500',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
     borderRadius: 4,
-    backgroundColor: '#0079D3',
-    marginLeft: 8,
-    marginTop: 8,
+  },
+  unreadBadgeText: {
+    color: 'white',
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   emptyContainer: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 80,
+    paddingHorizontal: 40,
   },
   emptyTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
     marginTop: 16,
+    marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
-    marginTop: 8,
     textAlign: 'center',
+    lineHeight: 20,
   },
 });

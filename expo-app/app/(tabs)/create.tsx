@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { View, Text, Pressable, StyleSheet, TextInput, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Link, router } from "expo-router"
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -56,12 +56,34 @@ export default function CreateScreen() {
       <TextInput
         placeholder="body text (optional)"
         placeholderTextColor={theme === 'dark' ? '#818384' : '#a0a0a0'}
-        style={{ color: currentColors.text }} 
+        style={{ color: currentColors.text, minHeight: 100 }} 
         value={body}
         onChangeText={(text) => setBody(text)} 
         multiline
         scrollEnabled={false} />
       </ScrollView>
+
+      {/* Bottom Action Bar */}
+      <View style={[styles.actionBar, { borderTopColor: currentColors.border }]}>
+        <Pressable style={styles.actionButton}>
+          <Ionicons name="link" size={24} color={currentColors.text} />
+        </Pressable>
+        <Pressable style={styles.actionButton}>
+          <Ionicons name="image-outline" size={24} color={currentColors.text} />
+        </Pressable>
+        <Pressable style={styles.actionButton}>
+          <Ionicons name="happy-outline" size={24} color={currentColors.text} />
+        </Pressable>
+        <Pressable style={styles.actionButton}>
+          <MaterialCommunityIcons name="format-list-bulleted" size={24} color={currentColors.text} />
+        </Pressable>
+        <Pressable style={styles.actionButton}>
+          <MaterialIcons name="gif" size={28} color={currentColors.text} />
+        </Pressable>
+        <Pressable style={styles.actionButton}>
+          <Ionicons name="text" size={24} color={currentColors.text} />
+        </Pressable>
+      </View>
     </KeyboardAvoidingView>
   </SafeAreaView>
   )
@@ -94,5 +116,17 @@ const styles = StyleSheet.create({
     gap: 5,
     alignSelf: 'flex-start',
     marginVertical: 10,
+  },
+
+  actionBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingVertical: 12,
+    borderTopWidth: 1,
+  },
+
+  actionButton: {
+    padding: 8,
   },
 })

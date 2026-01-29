@@ -2,13 +2,15 @@ import { Tabs } from "expo-router";
 import { AntDesign, Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { TouchableOpacity, View } from "react-native";
 import { useTheme } from "../../contexts/ThemeContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar } from "../../components/Sidebar";
 import { useRouter } from "expo-router";
+import SplashScreen from "../../components/splashscreen/page";
 
 export default function TabLayout() {
   const { theme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
   const router = useRouter();
 
   const colors = {
@@ -17,6 +19,19 @@ export default function TabLayout() {
   };
 
   const currentColors = colors[theme];
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Show splash screen
+  if (showSplash) {
+    return <SplashScreen />;
+  }
 
   return (
     <>
@@ -43,25 +58,32 @@ export default function TabLayout() {
             </TouchableOpacity>
           ),
           headerRight: () => (
-            <TouchableOpacity 
-              onPress={() => router.push("../auth/page")} 
-              style={{ paddingRight: 16 }}
-            >
-              <View style={{
-                width: 32,
-                height: 32,
-                borderRadius: 16,
-                backgroundColor: theme === 'dark' ? '#343536' : '#e4e6e8',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-                <MaterialIcons 
-                  name="person-outline" 
-                  size={20} 
-                  color={theme === 'dark' ? '#d7dadc' : '#878A8C'} 
-                />
-              </View>
-            </TouchableOpacity>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 16, paddingRight: 16 }}>
+              
+              {/* Search Button */}
+              <TouchableOpacity onPress={() => router.push("../search/page")}>
+                <Ionicons name="search-outline" size={22} color={currentColors.text} />
+              </TouchableOpacity>
+
+              {/* Profile Button */}
+              <TouchableOpacity onPress={() => router.push("../auth/page")}>
+                <View style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 16,
+                  backgroundColor: theme === 'dark' ? '#343536' : '#e4e6e8',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                  <MaterialIcons 
+                    name="person-outline" 
+                    size={20} 
+                    color={theme === 'dark' ? '#d7dadc' : '#878A8C'} 
+                  />
+                </View>
+              </TouchableOpacity>
+
+            </View>
           ),
         }}
       >
@@ -69,7 +91,7 @@ export default function TabLayout() {
           name="index"
           options={{
             title: 'Home',
-            headerTitle: 'Reddit',
+            headerTitle: 'reddit',
             headerTitleStyle: { color: '#FF4500' },
             tabBarIcon: ({ color }) => <AntDesign name="home" size={24} color={color} />,
           }}
@@ -109,6 +131,7 @@ export default function TabLayout() {
         />
       </Tabs>
 
+      {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
     </>
   );
