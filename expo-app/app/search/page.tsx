@@ -43,6 +43,7 @@ export default function SearchScreen() {
   const tabs = [
     { id: 'posts', label: 'Posts' },
     { id: 'communities', label: 'Communities' },
+    { id: 'people', label: 'People' },
     { id: 'comments', label: 'Comments' },
     { id: 'media', label: 'Media' },
   ];
@@ -115,7 +116,7 @@ export default function SearchScreen() {
               Search Reddit
             </Text>
             <Text style={[styles.emptySubtitle, { color: currentColors.secondaryText }]}>
-              Find posts, communities, comments, and media
+              Find posts, communities, people, comments, and media
             </Text>
           </View>
         ) : (
