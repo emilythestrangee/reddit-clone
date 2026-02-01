@@ -147,8 +147,8 @@ func New() Service {
 
 	// Construct connection string
 	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC",
-		host, username, password, database, port,
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=UTC",
+		host, username, password, database, port, os.Getenv("DB_SSLMODE"),
 	)
 
 	// Configure GORM logger
