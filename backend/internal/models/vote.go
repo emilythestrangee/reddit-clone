@@ -6,8 +6,9 @@ import "time"
 type Vote struct {
 	ID        int       `gorm:"primaryKey" json:"id"`
 	UserID    int       `json:"user_id"`
-	PostID    int       `json:"post_id"`
-	VoteType  int       `json:"vote_type"` // 1 for upvote, -1 for downvote
+	PostID    int       `json:"post_id"`    // non-zero for post votes
+	CommentID int       `json:"comment_id"` // non-zero for comment votes
+	VoteType  int       `json:"vote_type"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

@@ -17,7 +17,13 @@ func NewPostHandler(db *gorm.DB) *PostHandler {
 	return &PostHandler{db: db}
 }
 
-// GetPosts returns all posts
+func (h *PostHandler) calculateVotes(postID int) (int, int) {
+	var upvotes, downvotes int64
+	h.db.Model(&models.Vote{}).Where("post_id = ? AND vote_type = ?", postID, 1).Count(&upvotes)
+	h.db.Model(&models.Vote{}).Where("post_id = ? AND vote_type = ?", postID, -1).Count(&downvotes)
+	return int(upvotes), int(downvotes)
+}
+
 func (h *PostHandler) GetPosts(c *gin.Context) {
 	var posts []models.Post
 
@@ -26,7 +32,34 @@ func (h *PostHandler) GetPosts(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, posts)
+	// DON'T embed models.Post — build each response manually
+	var responses []gin.H
+	for _, post := range posts {
+		up, down := h.calculateVotes(post.ID)
+		responses = append(responses, gin.H{
+			"id":         post.ID,
+			"title":      post.Title,
+			"body":       post.Body,
+			"content":    post.Content,
+			"image":      post.Image,
+			"user_id":    post.UserID,
+			"author_id":  post.AuthorID,
+			"community":  post.Community,
+			"user":       post.User,
+			"upvotes":    up,
+			"downvotes":  down,
+			"comments":   post.Comments,
+			"created_at": post.CreatedAt,
+			"updated_at": post.UpdatedAt,
+		})
+	}
+
+	// If no posts, return empty array not null
+	if responses == nil {
+		responses = []gin.H{}
+	}
+
+	c.JSON(http.StatusOK, responses)
 }
 
 // GetPost returns a single post by ID
@@ -39,27 +72,72 @@ func (h *PostHandler) GetPost(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, post)
+	up, down := h.calculateVotes(post.ID)
+
+	c.JSON(http.StatusOK, gin.H{
+		"id":         post.ID,
+		"title":      post.Title,
+		"body":       post.Body,
+		"content":    post.Content,
+		"image":      post.Image,
+		"user_id":    post.UserID,
+		"author_id":  post.AuthorID,
+		"user":       post.User,
+		"upvotes":    up,
+		"downvotes":  down,
+		"created_at": post.CreatedAt,
+		"updated_at": post.UpdatedAt,
+	})
 }
 
-// CreatePost creates a new post
+// CreatePost creates a new post (PROTECTED - requires authentication)
 func (h *PostHandler) CreatePost(c *gin.Context) {
 	var input struct {
-		Title string `json:"title" binding:"required"`
-		Body  string `json:"body"`
+		Title   string `json:"title" binding:"required"`
+		Body    string `json:"body"`
+		Content string `json:"content"`
+		Image   string `json:"image"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Title is required"})
 		return
 	}
 
-	userID, _ := c.Get("user_id")
+	// Get user ID from auth middleware
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	// Convert userID to int
+	var authorID int
+	switch v := userID.(type) {
+	case int:
+		authorID = v
+	case uint:
+		authorID = int(v)
+	case float64:
+		authorID = int(v)
+	default:
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID type"})
+		return
+	}
+
+	// Use content or body (they're the same)
+	postContent := input.Content
+	if postContent == "" {
+		postContent = input.Body
+	}
 
 	post := models.Post{
 		Title:    input.Title,
-		Body:     input.Body,
-		AuthorID: userID.(int),
+		Body:     postContent,
+		Content:  postContent,
+		Image:    input.Image,
+		AuthorID: authorID,
+		UserID:   authorID,
 	}
 
 	if err := h.db.Create(&post).Error; err != nil {
@@ -67,18 +145,27 @@ func (h *PostHandler) CreatePost(c *gin.Context) {
 		return
 	}
 
+	// Reload with user information
 	h.db.Preload("User").First(&post, post.ID)
+
 	c.JSON(http.StatusCreated, post)
 }
 
-// UpdatePost updates an existing post
+// UpdatePost updates an existing post (PROTECTED - requires ownership)
 func (h *PostHandler) UpdatePost(c *gin.Context) {
 	postID := c.Param("id")
-	userID, _ := c.Get("user_id")
+
+	// Get user ID from auth middleware
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
 
 	var input struct {
-		Title string `json:"title"`
-		Body  string `json:"body"`
+		Title   string `json:"title"`
+		Body    string `json:"body"`
+		Content string `json:"content"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -86,42 +173,86 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 		return
 	}
 
+	// Find the post
 	var post models.Post
 	if err := h.db.First(&post, postID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
 		return
 	}
 
-	// Check if user owns the post
-	if post.AuthorID != userID.(int) {
+	// Convert userID to int for comparison
+	var currentUserID int
+	switch v := userID.(type) {
+	case int:
+		currentUserID = v
+	case uint:
+		currentUserID = int(v)
+	case float64:
+		currentUserID = int(v)
+	default:
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID type"})
+		return
+	}
+
+	// Check ownership
+	if post.AuthorID != currentUserID && post.UserID != currentUserID {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You can only edit your own posts"})
 		return
 	}
 
+	// Update fields
 	if input.Title != "" {
 		post.Title = input.Title
 	}
 	if input.Body != "" {
 		post.Body = input.Body
+		post.Content = input.Body
+	}
+	if input.Content != "" {
+		post.Content = input.Content
+		post.Body = input.Content
 	}
 
 	h.db.Save(&post)
+	h.db.Preload("User").First(&post, post.ID)
+
 	c.JSON(http.StatusOK, post)
 }
 
-// DeletePost deletes a post
+// DeletePost deletes a post (PROTECTED - requires ownership)
 func (h *PostHandler) DeletePost(c *gin.Context) {
 	postID := c.Param("id")
-	userID, _ := c.Get("user_id")
 
+	// Get user ID from auth middleware
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	// Find the post
 	var post models.Post
 	if err := h.db.First(&post, postID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
 		return
 	}
 
-	// Check if user owns the post
-	if post.AuthorID != userID.(int) {
+	// Convert userID to int for comparison
+	var currentUserID int
+	switch v := userID.(type) {
+	case int:
+		currentUserID = v
+	case uint:
+		currentUserID = int(v)
+	case float64:
+		currentUserID = int(v)
+	default:
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID type"})
+		return
+	}
+
+	// Check ownership
+	if post.AuthorID != currentUserID && post.UserID != currentUserID {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You can only delete your own posts"})
 		return
 	}
@@ -134,13 +265,19 @@ func (h *PostHandler) DeletePost(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Post deleted successfully"})
 }
 
-// VotePost handles upvoting/downvoting a post
+// VotePost handles upvoting/downvoting a post (PROTECTED - requires authentication)
 func (h *PostHandler) VotePost(c *gin.Context) {
 	postID := c.Param("id")
-	userID, _ := c.Get("user_id")
+
+	// Get user ID from auth middleware
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
 
 	var input struct {
-		VoteType int `json:"vote_type" binding:"required,oneof=-1 1"` // -1 for downvote, 1 for upvote
+		VoteType int `json:"vote_type" binding:"required,oneof=-1 1"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -155,12 +292,26 @@ func (h *PostHandler) VotePost(c *gin.Context) {
 		return
 	}
 
+	// Convert userID to int
+	var voterID int
+	switch v := userID.(type) {
+	case int:
+		voterID = v
+	case uint:
+		voterID = int(v)
+	case float64:
+		voterID = int(v)
+	default:
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID type"})
+		return
+	}
+
 	// Check if user already voted
 	var existingVote models.Vote
-	err := h.db.Where("user_id = ? AND post_id = ?", userID, postID).First(&existingVote).Error
+	err := h.db.Where("user_id = ? AND post_id = ?", voterID, postID).First(&existingVote).Error
 
 	if err == nil {
-		// User already voted - update the vote
+		// User already voted
 		if existingVote.VoteType == input.VoteType {
 			// Same vote - remove it (toggle)
 			h.db.Delete(&existingVote)
@@ -177,7 +328,7 @@ func (h *PostHandler) VotePost(c *gin.Context) {
 
 	// Create new vote
 	vote := models.Vote{
-		UserID:   userID.(int),
+		UserID:   voterID,
 		PostID:   post.ID,
 		VoteType: input.VoteType,
 	}
@@ -188,4 +339,17 @@ func (h *PostHandler) VotePost(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Vote recorded"})
+}
+
+// GetUserPosts returns all posts by a specific user
+func (h *PostHandler) GetUserPosts(c *gin.Context) {
+	userID := c.Param("id")
+	var posts []models.Post
+
+	if err := h.db.Preload("User").Where("user_id = ? OR author_id = ?", userID, userID).Order("created_at desc").Find(&posts).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user posts"})
+		return
+	}
+
+	c.JSON(http.StatusOK, posts)
 }

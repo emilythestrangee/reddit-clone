@@ -80,6 +80,10 @@ func (s *Server) RegisterRoutes() *gin.Engine {
 		api.POST("/register", s.handler.Auth.Register)
 		api.POST("/login", s.handler.Auth.Login)
 
+		// OAuth routes
+		api.POST("/auth/google", s.handler.Auth.GoogleLogin)
+		api.POST("/auth/apple", s.handler.Auth.AppleLogin)
+
 		// Post routes (public reads)
 		api.GET("/posts", s.handler.Post.GetPosts)
 		api.GET("/posts/:id", s.handler.Post.GetPost)
@@ -107,6 +111,8 @@ func (s *Server) RegisterRoutes() *gin.Engine {
 
 			// Comment protected routes
 			protected.POST("/posts/:id/comments", s.handler.Comment.CreateComment)
+			protected.POST("/comments/:commentId/upvote", s.handler.Comment.UpvoteComment)
+			protected.POST("/comments/:commentId/downvote", s.handler.Comment.DownvoteComment)
 			protected.PUT("/comments/:commentId", s.handler.Comment.UpdateComment)
 			protected.DELETE("/comments/:commentId", s.handler.Comment.DeleteComment)
 

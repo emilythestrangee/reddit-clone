@@ -5,13 +5,26 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { useState, useEffect } from "react";
 import { Sidebar } from "../../components/Sidebar";
 import { useRouter } from "expo-router";
-import SplashScreen from "../../components/splashscreen/page";
+import { useAuth } from '../../contexts/AuthContext';
+import { Image } from 'react-native';
 
 export default function TabLayout() {
   const { theme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showSplash, setShowSplash] = useState(true);
+  const { isAuthenticated, user } = useAuth();
   const router = useRouter();
+
+  const getAvatarImage = (avatarId: string) => {
+    const avatarMap: any = {
+      '1': require('../../assets/avators/avator1.png'),
+      '2': require('../../assets/avators/avator2.png'),
+      '3': require('../../assets/avators/avator3.png'),
+      '4': require('../../assets/avators/avator4.png'),
+      '5': require('../../assets/avators/avator5.png'),
+      '6': require('../../assets/avators/avator6.png'),
+    };
+    return avatarMap[avatarId] || null;
+  };
 
   const colors = {
     dark: { bg: '#030303', text: '#d7dadc', headerBg: '#1a1a1b', tabBg: '#1a1a1b' },
@@ -19,19 +32,6 @@ export default function TabLayout() {
   };
 
   const currentColors = colors[theme];
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 2500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Show splash screen
-  if (showSplash) {
-    return <SplashScreen />;
-  }
 
   return (
     <>
@@ -65,21 +65,37 @@ export default function TabLayout() {
                 <Ionicons name="search-outline" size={22} color={currentColors.text} />
               </TouchableOpacity>
 
-              {/* Profile Button */}
-              <TouchableOpacity onPress={() => router.push("../auth/page")}>
+              {/* Profile Button - UPDATE THIS */}
+              <TouchableOpacity onPress={() => {
+                if (isAuthenticated && user) {
+                  // Open sidebar instead of navigating to non-existent route
+                  setSidebarOpen(true);
+                } else {
+                  router.push("../auth/page");
+                }
+              }}>
                 <View style={{
                   width: 32,
                   height: 32,
                   borderRadius: 16,
-                  backgroundColor: theme === 'dark' ? '#343536' : '#e4e6e8',
+                  backgroundColor: user?.avatar ? 'transparent' : (theme === 'dark' ? '#343536' : '#e4e6e8'),
                   justifyContent: 'center',
                   alignItems: 'center',
+                  overflow: 'hidden',
                 }}>
-                  <MaterialIcons 
-                    name="person-outline" 
-                    size={20} 
-                    color={theme === 'dark' ? '#d7dadc' : '#878A8C'} 
-                  />
+                  {user?.avatar ? (
+                    <Image 
+                      source={getAvatarImage(user.avatar)}
+                      style={{ width: 32, height: 32 }}
+                      key={user.avatar} 
+                    />
+                  ) : (
+                    <MaterialIcons 
+                      name="person-outline" 
+                      size={20} 
+                      color={theme === 'dark' ? '#d7dadc' : '#878A8C'} 
+                    />
+                  )}
                 </View>
               </TouchableOpacity>
 

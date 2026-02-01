@@ -7,10 +7,12 @@ import {
   ScrollView,
   Image,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useAuth } from '../../contexts/AuthContext';
 
 // Preset Reddit-style avatars
 const PRESET_AVATARS = [
@@ -25,12 +27,14 @@ const PRESET_AVATARS = [
 export default function OnboardingScreen() {
   const router = useRouter();
   const { theme } = useTheme();
-  const insets = useSafeAreaInsets(); // 👈 SAFE AREA FIX
+  const insets = useSafeAreaInsets();
+  const { user, setSelectedAvatar, updateAvatar } = useAuth(); // ADD updateAvatar
 
   const [step, setStep] = useState(1);
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [selectedAvatar, setSelectedAvatar] = useState(PRESET_AVATARS[0]);
+  const [localAvatar, setLocalAvatar] = useState(PRESET_AVATARS[0]); // RENAMED
+  const [isLoading, setIsLoading] = useState(false);
 
   const colors = {
     dark: {
@@ -61,14 +65,47 @@ export default function OnboardingScreen() {
     }${Math.floor(Math.random() * 1000)}`;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step === 1) {
       if (!username) setUsername(generateRandomUsername());
       setStep(2);
     } else if (step === 2) {
       setStep(3);
     } else {
-      router.replace("/(tabs)");
+      // Step 3 - Finish onboarding and save avatar
+      setIsLoading(true);
+      try {
+        console.log('🎨 Saving avatar:', localAvatar.id);
+        console.log('👤 Current user:', user);
+
+        // Save avatar to context FIRST (for immediate display)
+        setSelectedAvatar(localAvatar);
+
+        // If user is logged in, update backend
+        if (user?.id) {
+          console.log('💾 Updating backend with avatar for user ID:', user.id);
+          
+          // Use the updateAvatar function from AuthContext
+          await updateAvatar(localAvatar.id);
+          
+          // Wait for state to propagate
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+          console.log('✅ Avatar saved successfully');
+        } else {
+          console.log('⚠️ No user logged in, avatar saved to context only');
+        }
+
+        // Navigate to home
+        router.replace("/(tabs)");
+      } catch (error: any) {
+        console.error('❌ Error saving avatar:', error);
+        Alert.alert('Warning', 'Avatar saved locally. Will sync with server later.');
+        // Still navigate even if save fails
+        router.replace("/(tabs)");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -78,7 +115,6 @@ export default function OnboardingScreen() {
 
   return (
     <>
-      {/* 🚫 HEADER DISABLED */}
       <Stack.Screen options={{ headerShown: false }} />
 
       <View
@@ -86,7 +122,7 @@ export default function OnboardingScreen() {
           styles.container,
           {
             backgroundColor: currentColors.bg,
-            paddingTop: insets.top + 16, // ✅ CONTENT PUSHED DOWN
+            paddingTop: insets.top + 16,
           },
         ]}
       >
@@ -112,6 +148,7 @@ export default function OnboardingScreen() {
                 onChangeText={setUsername}
                 placeholder="Enter username"
                 placeholderTextColor={currentColors.secondaryText}
+                editable={!isLoading}
                 style={[
                   styles.input,
                   {
@@ -122,7 +159,7 @@ export default function OnboardingScreen() {
                 ]}
               />
 
-              <Pressable onPress={() => setUsername(generateRandomUsername())}>
+              <Pressable onPress={() => setUsername(generateRandomUsername())} disabled={isLoading}>
                 <Text style={styles.random}>Generate random username</Text>
               </Pressable>
 
@@ -131,6 +168,7 @@ export default function OnboardingScreen() {
                 onChangeText={setDisplayName}
                 placeholder="Display name (optional)"
                 placeholderTextColor={currentColors.secondaryText}
+                editable={!isLoading}
                 style={[
                   styles.input,
                   {
@@ -147,24 +185,29 @@ export default function OnboardingScreen() {
           {/* STEP 2 */}
           {step === 2 && (
             <View style={styles.step}>
+              <Text style={[styles.title, { color: currentColors.text }]}>
+                Choose your avatar
+              </Text>
+              
               <View
                 style={[
                   styles.avatarBig,
-                  { backgroundColor: selectedAvatar.color },
+                  { backgroundColor: localAvatar.color },
                 ]}
               >
-                <Image source={selectedAvatar.image} style={styles.avatarImg} />
+                <Image source={localAvatar.image} style={styles.avatarImg} />
               </View>
 
               <View style={styles.avatarGrid}>
                 {PRESET_AVATARS.map((a) => (
                   <Pressable
                     key={a.id}
-                    onPress={() => setSelectedAvatar(a)}
+                    onPress={() => setLocalAvatar(a)} // FIXED
+                    disabled={isLoading}
                     style={[
                       styles.avatarSmall,
                       { backgroundColor: a.color },
-                      selectedAvatar.id === a.id && styles.avatarSelected,
+                      localAvatar.id === a.id && styles.avatarSelected, // FIXED
                     ]}
                   >
                     <Image source={a.image} style={styles.avatarImg} />
@@ -177,6 +220,10 @@ export default function OnboardingScreen() {
           {/* STEP 3 */}
           {step === 3 && (
             <View style={styles.step}>
+              <Text style={[styles.title, { color: currentColors.text }]}>
+                Confirm your profile
+              </Text>
+              
               <View
                 style={[
                   styles.preview,
@@ -189,18 +236,18 @@ export default function OnboardingScreen() {
                 <View
                   style={[
                     styles.avatarBig,
-                    { backgroundColor: selectedAvatar.color },
+                    { backgroundColor: localAvatar.color },
                   ]}
                 >
-                  <Image source={selectedAvatar.image} style={styles.avatarImg} />
+                  <Image source={localAvatar.image} style={styles.avatarImg} />
                 </View>
 
-                <Text style={{ color: currentColors.text, fontSize: 20 }}>
-                  u/{username}
+                <Text style={{ color: currentColors.text, fontSize: 20, fontWeight: 'bold' }}>
+                  u/{username || user?.username}
                 </Text>
 
                 {displayName ? (
-                  <Text style={{ color: currentColors.secondaryText }}>
+                  <Text style={{ color: currentColors.secondaryText, marginTop: 8 }}>
                     {displayName}
                   </Text>
                 ) : null}
@@ -215,17 +262,21 @@ export default function OnboardingScreen() {
             styles.bottom,
             {
               borderTopColor: currentColors.border,
-              paddingBottom: insets.bottom + 12, // 👈 SAFE BOTTOM
+              paddingBottom: insets.bottom + 12,
             },
           ]}
         >
-          <Pressable onPress={handleSkip}>
+          <Pressable onPress={handleSkip} disabled={isLoading}>
             <Text style={{ color: currentColors.secondaryText }}>Skip</Text>
           </Pressable>
 
-          <Pressable style={styles.nextBtn} onPress={handleNext}>
+          <Pressable 
+            style={[styles.nextBtn, isLoading && { opacity: 0.6 }]} 
+            onPress={handleNext}
+            disabled={isLoading}
+          >
             <Text style={styles.nextText}>
-              {step === 3 ? "Finish" : "Next"}
+              {isLoading ? 'Saving...' : (step === 3 ? "Finish" : "Next")}
             </Text>
           </Pressable>
         </View>
@@ -264,7 +315,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
   },
-  random: { color: "#FF4500", marginBottom: 10 },
+  random: { color: "#FF4500", marginBottom: 10, fontWeight: '600' },
   avatarBig: {
     width: 120,
     height: 120,
@@ -294,6 +345,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     borderWidth: 1,
     alignItems: "center",
+    width: "100%",
   },
   bottom: {
     position: "absolute",

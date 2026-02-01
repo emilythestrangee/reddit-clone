@@ -1,4 +1,4 @@
-// app/auth/page.tsx - With Dark Theme Support and Onboarding
+// app/auth/page.tsx - FIXED with correct property names and routes
 import {
   View,
   Text,
@@ -9,16 +9,22 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { useOAuth } from '../../hooks/useOAuth';
 
 export default function AuthPage() {
   const router = useRouter();
   const { theme } = useTheme();
+  const { login, register, selectedAvatar } = useAuth();
+  const { handleGoogleLogin, handleAppleLogin, googleLoading } = useOAuth(); // FIXED: googleLoading
   const isDark = theme === 'dark';
   
   const [isLogin, setIsLogin] = useState(true);
@@ -29,51 +35,173 @@ export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  /**
+   * CRITICAL: Handle authentication with proper timing
+   * Must wait for token to be saved before navigating
+   */
   const handleAuth = async () => {
     setIsLoading(true);
     setError('');
 
-    // Simple validation
-    if (isLogin) {
-      if (!email || !password) {
-        setError('Please enter email and password');
-        setIsLoading(false);
-        return;
+    try {
+      // Validation
+      if (isLogin) {
+        if (!email || !password) {
+          setError('Please enter email and password');
+          setIsLoading(false);
+          return;
+        }
+        if (!validateEmail(email)) {
+          setError('Please enter a valid email address');
+          setIsLoading(false);
+          return;
+        }
+      } else {
+        if (!username || !email || !password) {
+          setError('Please fill in all fields');
+          setIsLoading(false);
+          return;
+        }
+        if (!validateEmail(email)) {
+          setError('Please enter a valid email address');
+          setIsLoading(false);
+          return;
+        }
+        if (password.length < 6) {
+          setError('Password must be at least 6 characters');
+          setIsLoading(false);
+          return;
+        }
+        if (username.length < 3) {
+          setError('Username must be at least 3 characters');
+          setIsLoading(false);
+          return;
+        }
       }
-    } else {
-      if (!username || !email || !password) {
-        setError('Please fill in all fields');
-        setIsLoading(false);
-        return;
-      }
-      if (password.length < 6) {
-        setError('Password must be at least 6 characters');
-        setIsLoading(false);
-        return;
-      }
-    }
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    setIsLoading(false);
-    
-    // If signing up, go to onboarding. If logging in, go back
-    if (!isLogin) {
-      router.push('../../onboardingscreen/page');
-    } else {
-      router.back();
+      // Perform authentication
+      if (isLogin) {
+        console.log('🔐 Logging in...');
+        
+        // CRITICAL: Wait for login to FULLY complete
+        await login({ email, password });
+        
+        // CRITICAL: Give AsyncStorage time to write
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // VERIFY token was saved
+        const token = await AsyncStorage.getItem('token');
+        const user = await AsyncStorage.getItem('user');
+        
+        console.log('🔍 Post-login verification:', {
+          hasToken: !!token,
+          hasUser: !!user
+        });
+        
+        if (!token) {
+          throw new Error('Login failed - token not saved. Please try again.');
+        }
+        
+        Alert.alert('Success', 'Welcome back!');
+        
+        // CRITICAL: Use replace to prevent back navigation
+        router.replace('/(tabs)');
+        
+      } else {
+        console.log('📝 Registering...');
+        
+        // CRITICAL: Wait for registration to FULLY complete (includes auto-login)
+        await register({ 
+          username, 
+          email, 
+          password 
+        }, selectedAvatar); // Pass avatar if selected
+        
+        // CRITICAL: Give AsyncStorage time to write
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // VERIFY token was saved
+        const token = await AsyncStorage.getItem('token');
+        const user = await AsyncStorage.getItem('user');
+        
+        console.log('🔍 Post-registration verification:', {
+          hasToken: !!token,
+          hasUser: !!user
+        });
+        
+        if (!token) {
+          throw new Error('Registration failed - token not saved. Please try again.');
+        }
+        
+        Alert.alert('Success', 'Account created successfully!');
+        
+        // For new users, go to onboarding if they haven't selected avatar
+        // FIXED: Use correct route format
+        if (!selectedAvatar) {
+          router.replace('../onboardingscreen/page'); // Go to tabs if onboarding doesn't exist
+        } else {
+          router.replace('/(tabs)' as any);
+        }
+      }
+    } catch (err: any) {
+      console.error('❌ Auth error:', err);
+      setError(err.message || 'An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleSocialLogin = (provider: string) => {
-    console.log(`Logging in with ${provider}`);
-    // For social login during signup, go to onboarding
-    // For login, just go back
-    if (!isLogin) {
-      router.push('../../onboardingscreen/page');
-    } else {
-      router.back();
+  /**
+   * Handle OAuth login
+   */
+  const handleOAuthLogin = async (provider: 'google' | 'apple') => {
+    setIsLoading(true);
+    setError('');
+
+    try {
+      if (provider === 'google') {
+        await handleGoogleLogin(selectedAvatar);
+        
+        // Wait and verify
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const token = await AsyncStorage.getItem('token');
+        
+        if (!token) {
+          throw new Error('OAuth login failed - token not saved');
+        }
+        
+        router.replace('/(tabs)');
+        
+      } else if (provider === 'apple') {
+        if (Platform.OS !== 'ios') {
+          Alert.alert('Not Available', 'Apple Sign-In is only available on iOS devices');
+          return;
+        }
+        
+        await handleAppleLogin(selectedAvatar);
+        
+        // Wait and verify
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const token = await AsyncStorage.getItem('token');
+        
+        if (!token) {
+          throw new Error('OAuth login failed - token not saved');
+        }
+        
+        router.replace('/(tabs)');
+      }
+    } catch (err: any) {
+      console.error(`❌ ${provider} OAuth error:`, err);
+      if (err.message !== 'User cancelled') {
+        setError(err.message || `${provider} sign-in failed. Please try again.`);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -103,7 +231,11 @@ export default function AuthPage() {
         >
           {/* Header */}
           <View style={[styles.header, { paddingTop: 30, borderBottomColor: colors.border }]}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <TouchableOpacity 
+              onPress={() => router.replace('/')} 
+              style={styles.backButton}
+              disabled={isLoading}
+            >
               <Ionicons name="close" size={24} color={colors.textSecondary} />
             </TouchableOpacity>
             <View style={styles.logoContainer}>
@@ -130,6 +262,50 @@ export default function AuthPage() {
                 <Text style={[styles.errorText, { color: colors.errorText }]}>{error}</Text>
               </View>
             ) : null}
+
+            {/* Social Login Buttons - Show First */}
+            <View style={styles.socialContainer}>
+              {/* Google */}
+              <TouchableOpacity
+                style={[styles.socialButton, styles.googleButton]}
+                onPress={() => handleOAuthLogin('google')}
+                disabled={isLoading || googleLoading}
+              >
+                {isLoading ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <>
+                    <FontAwesome name="google" size={20} color="#FFFFFF" />
+                    <Text style={styles.socialButtonText}>Continue with Google</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+
+              {/* Apple - Only show on iOS */}
+              {Platform.OS === 'ios' && (
+                <TouchableOpacity
+                  style={[styles.socialButton, styles.appleButton]}
+                  onPress={() => handleOAuthLogin('apple')}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <ActivityIndicator color="#FFFFFF" />
+                  ) : (
+                    <>
+                      <Ionicons name="logo-apple" size={20} color="#FFFFFF" />
+                      <Text style={styles.socialButtonText}>Continue with Apple</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* OR Divider */}
+            <View style={styles.dividerContainer}>
+              <View style={[styles.dividerLine, { backgroundColor: colors.divider }]} />
+              <Text style={[styles.dividerText, { color: colors.textSecondary }]}>OR</Text>
+              <View style={[styles.dividerLine, { backgroundColor: colors.divider }]} />
+            </View>
 
             {/* Signup Fields */}
             {!isLogin && (
@@ -232,46 +408,6 @@ export default function AuthPage() {
               )}
             </TouchableOpacity>
 
-            {/* OR Divider */}
-            <View style={styles.dividerContainer}>
-              <View style={[styles.dividerLine, { backgroundColor: colors.divider }]} />
-              <Text style={[styles.dividerText, { color: colors.textSecondary }]}>OR</Text>
-              <View style={[styles.dividerLine, { backgroundColor: colors.divider }]} />
-            </View>
-
-            {/* Social Login Buttons */}
-            <View style={styles.socialContainer}>
-              {/* Google */}
-              <TouchableOpacity
-                style={[styles.socialButton, styles.googleButton]}
-                onPress={() => handleSocialLogin('google')}
-                disabled={isLoading}
-              >
-                <FontAwesome name="google" size={20} color="#FFFFFF" />
-                <Text style={styles.socialButtonText}>Continue with Google</Text>
-              </TouchableOpacity>
-
-              {/* Apple */}
-              <TouchableOpacity
-                style={[styles.socialButton, styles.appleButton]}
-                onPress={() => handleSocialLogin('apple')}
-                disabled={isLoading}
-              >
-                <Ionicons name="logo-apple" size={20} color="#FFFFFF" />
-                <Text style={styles.socialButtonText}>Continue with Apple</Text>
-              </TouchableOpacity>
-
-              {/* Facebook */}
-              <TouchableOpacity
-                style={[styles.socialButton, styles.facebookButton]}
-                onPress={() => handleSocialLogin('facebook')}
-                disabled={isLoading}
-              >
-                <FontAwesome name="facebook" size={20} color="#FFFFFF" />
-                <Text style={styles.socialButtonText}>Continue with Facebook</Text>
-              </TouchableOpacity>
-            </View>
-
             {/* Switch between Login/Signup */}
             <View style={styles.switchContainer}>
               <Text style={[styles.switchText, { color: colors.textSecondary }]}>
@@ -367,6 +503,44 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     flex: 1,
   },
+  socialContainer: {
+    gap: 12,
+    marginBottom: 24,
+  },
+  socialButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 24,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  googleButton: {
+    backgroundColor: '#4285F4',
+  },
+  appleButton: {
+    backgroundColor: '#000000',
+  },
+  socialButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#FFFFFF',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 24,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    fontSize: 14,
+    fontWeight: '500',
+  },
   inputGroup: {
     marginBottom: 20,
   },
@@ -411,47 +585,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 24,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-  },
-  dividerText: {
-    marginHorizontal: 16,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  socialContainer: {
-    gap: 12,
-    marginBottom: 32,
-  },
-  socialButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 24,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  googleButton: {
-    backgroundColor: '#4285F4',
-  },
-  appleButton: {
-    backgroundColor: '#000000',
-  },
-  facebookButton: {
-    backgroundColor: '#1877F2',
-  },
-  socialButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#FFFFFF',
   },
   switchContainer: {
     flexDirection: 'row',

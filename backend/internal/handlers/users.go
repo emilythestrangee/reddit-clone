@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -59,25 +60,25 @@ func (h *UserHandler) GetUserProfile(c *gin.Context) {
 	})
 }
 
-// UpdateUserProfile updates the current user's profile
 func (h *UserHandler) UpdateUserProfile(c *gin.Context) {
-	userID, _ := c.Get("user_id")
-	paramUserID := c.Param("id")
+	userID := c.Param("id")
 
-	// Users can only update their own profile
-	if paramUserID != "" {
-		var tempUser models.User
-		h.db.First(&tempUser, paramUserID)
-		if tempUser.ID != userID.(int) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "You can only update your own profile"})
-			return
-		}
+	// Get authenticated user ID from middleware
+	authUserID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// Check if user is updating their own profile
+	if fmt.Sprintf("%v", authUserID) != userID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You can only update your own profile"})
+		return
 	}
 
 	var input struct {
-		Username string `json:"username"`
-		Bio      string `json:"bio"`
-		Avatar   string `json:"avatar"`
+		Bio    string `json:"bio"`
+		Avatar string `json:"avatar"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -85,15 +86,14 @@ func (h *UserHandler) UpdateUserProfile(c *gin.Context) {
 		return
 	}
 
+	// Find user
 	var user models.User
 	if err := h.db.First(&user, userID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
-	if input.Username != "" {
-		user.Username = input.Username
-	}
+	// Update fields
 	if input.Bio != "" {
 		user.Bio = input.Bio
 	}
@@ -101,7 +101,11 @@ func (h *UserHandler) UpdateUserProfile(c *gin.Context) {
 		user.Avatar = input.Avatar
 	}
 
-	h.db.Save(&user)
+	// Save to database
+	if err := h.db.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update profile"})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"id":       user.ID,

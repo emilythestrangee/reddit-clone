@@ -2,9 +2,14 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView, StatusBar } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { MaterialIcons, Ionicons, FontAwesome5, Feather, Entypo, FontAwesome } from '@expo/vector-icons';
+import { useAuth } from '../contexts/AuthContext';
+import { useRouter } from 'expo-router';
+import { Image } from 'react-native';
 
 export const Sidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
   const { theme, themeMode, setThemeMode } = useTheme();
+  const { logout, user, isAuthenticated } = useAuth();
+  const router = useRouter();
 
   const colors = {
     dark: { 
@@ -23,6 +28,18 @@ export const Sidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ is
       active: '#e5e5e5',
       sectionBg: '#f6f7f8'
     },
+  };
+
+  const getAvatarImage = (avatarId: string) => {
+    const avatarMap: any = {
+      '1': require('../assets/avators/avator1.png'),
+      '2': require('../assets/avators/avator2.png'),
+      '3': require('../assets/avators/avator3.png'),
+      '4': require('../assets/avators/avator4.png'),
+      '5': require('../assets/avators/avator5.png'),
+      '6': require('../assets/avators/avator6.png'),
+    };
+    return avatarMap[avatarId] || null;
   };
 
   const currentColors = colors[theme];
@@ -74,18 +91,48 @@ export const Sidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ is
             <View style={[styles.profileSection, { borderBottomColor: currentColors.border }]}>
               <View style={styles.profileHeader}>
                 <View style={styles.avatar}>
-                  <FontAwesome5 name="user-circle" size={48} color="#818384" />
+                  {isAuthenticated && user?.avatar && getAvatarImage(user.avatar) ? (
+                    <Image 
+                      source={getAvatarImage(user.avatar)} 
+                      style={{ width: 48, height: 48, borderRadius: 24 }}
+                    />
+                  ) : (
+                    <FontAwesome5 name="user-circle" size={48} color="#818384" />
+                  )}
                 </View>
                 <View style={styles.profileInfo}>
-                  <Text style={[styles.username, { color: currentColors.text }]}>u/username</Text>
-                  <Text style={[styles.karma, { color: currentColors.secondaryText }]}>1.2k karma</Text>
+                  <Text style={[styles.username, { color: currentColors.text }]}>
+                    {isAuthenticated && user ? `u/${user.username}` : 'Guest'}
+                  </Text>
+                  <Text style={[styles.karma, { color: currentColors.secondaryText }]}>
+                    {isAuthenticated ? '1.2k karma' : 'Not logged in'}
+                  </Text>
                 </View>
               </View>
               
               <View style={styles.profileActions}>
-                <TouchableOpacity style={[styles.profileButton, { backgroundColor: currentColors.sectionBg }]}>
-                  <Text style={[styles.profileButtonText, { color: currentColors.text }]}>My Profile</Text>
-                </TouchableOpacity>
+                {isAuthenticated ? (
+                  <TouchableOpacity 
+                    style={[styles.profileButton, { backgroundColor: currentColors.sectionBg }]}
+                    onPress={() => {
+                      // TODO: Create profile screen
+                      // router.push(`/user/${user?.id}` as any);
+                      onClose();
+                    }}
+                  >
+                    <Text style={[styles.profileButtonText, { color: currentColors.text }]}>My Profile</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity 
+                    style={[styles.profileButton, { backgroundColor: '#FF4500' }]}
+                    onPress={() => {
+                      router.push('../auth/page');
+                      onClose();
+                    }}
+                  >
+                    <Text style={[styles.profileButtonText, { color: '#FFF' }]}>Sign In</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
 
@@ -194,13 +241,26 @@ export const Sidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ is
               </View>
             </View>
 
-            {/* App Info */}
+            {/* App Info - UPDATE LOGOUT */}
             <View style={styles.appInfo}>
-              <Text style={[styles.version, { color: currentColors.secondaryText }]}>reddit </Text>
-              <TouchableOpacity style={styles.logoutButton}>
-                <MaterialIcons name="logout" size={20} color="#FF4500" />
-                <Text style={[styles.logoutText, { color: '#FF4500' }]}>Log Out</Text>
-              </TouchableOpacity>
+              <Text style={[styles.version, { color: currentColors.secondaryText }]}>reddit v1.0.0</Text>
+              {isAuthenticated && (
+                <TouchableOpacity
+                  style={styles.logoutButton}
+                  onPress={async () => {
+                    try {
+                      await logout();
+                      onClose();
+                      router.replace('/'); // Go to splash/home
+                    } catch (error) {
+                      console.error('Logout error:', error);
+                    }
+                  }}
+                >
+                  <MaterialIcons name="logout" size={20} color="#FF4500" />
+                  <Text style={[styles.logoutText, { color: '#FF4500' }]}>Log Out</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </ScrollView>
         </View>
