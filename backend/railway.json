@@ -1,1 +1,0 @@
-{"buildCommand": "go build -o main cmd/api/main.go", "startCommand": "./main"}

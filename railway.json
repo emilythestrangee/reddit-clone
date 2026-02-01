@@ -1,0 +1,9 @@
+{
+  "build": {
+    "builder": "GOLANG",
+    "root": "backend"
+  },
+  "deploy": {
+    "startCommand": "cd backend && ./main"
+  }
+}
