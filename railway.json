@@ -1,0 +1,10 @@
+{
+  "name": "reddit-clone-backend",
+  "builder": "dockerfile",
+  "buildCommand": "cd backend && go build -o main cmd/api/main.go",
+  "startCommand": "cd backend && ./main",
+  "variables": {
+    "PORT": "8080",
+    "ENVIRONMENT": "production"
+  }
+}
