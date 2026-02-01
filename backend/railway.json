@@ -1,5 +1,0 @@
-{
-  "deploy": {
-    "startCommand": "go run cmd/api/main.go"
-  }
-}
