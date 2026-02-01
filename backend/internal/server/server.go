@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -39,16 +40,21 @@ func NewServer() *http.Server {
 	// Configure Gin router
 	router := newServer.RegisterRoutes()
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // local dev fallback
+	}
+
 	// Create HTTP server
 	server := &http.Server{
-		Addr:         ":8080",
+		Addr:         "0.0.0.0:" + port,
 		Handler:      router,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
-	fmt.Println("🚀 Server starting on http://localhost:8080")
+	log.Printf("🚀 Server starting on port %s\n", port)
 	fmt.Println("📝 Press Ctrl+C to stop the server")
 
 	return server
