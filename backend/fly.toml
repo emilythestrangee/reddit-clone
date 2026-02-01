@@ -1,17 +1,12 @@
-# fly.toml app configuration file generated for backend-green-fog-6124 on 2026-02-01T10:25:11Z
+# fly.toml app configuration file generated for reddit-clone-backend on 2026-02-01T11:42:26Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'backend-green-fog-6124'
-primary_region = 'iad'
+app = 'reddit-clone-backend'
+primary_region = 'ams'
 
 [build]
-  [build.args]
-    GO_VERSION = '1.25.6'
-
-[env]
-  PORT = '8080'
 
 [http_service]
   internal_port = 8080
