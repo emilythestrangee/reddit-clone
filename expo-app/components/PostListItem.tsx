@@ -17,8 +17,7 @@ export default function PostListItem({ post, isDetailedPost }: PostListItemProps
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
 
-  // Normalize both local JSON and API shapes
-  const postId = Number(post.id);
+   const postId = post.id; 
   const title = post.title || '';
   const description = post.description || post.body || post.content || '';
   const image = post.image || null;
@@ -61,12 +60,12 @@ export default function PostListItem({ post, isDetailedPost }: PostListItemProps
       if (voteState === type) {
         setUpvotes(prev => prev - type);
         setVoteState(0);
-        await postService.votePost(postId, type === 1 ? -1 : 1);
+        await postService.votePost(Number(postId), type === 1 ? -1 : 1);
       } else {
         if (voteState !== 0) setUpvotes(prev => prev - voteState);
         setUpvotes(prev => prev + type);
         setVoteState(type);
-        await postService.votePost(postId, type);
+        await postService.votePost(Number(postId), type);
       }
     } catch {
       setUpvotes(post.upvotes || 0);
@@ -83,7 +82,7 @@ export default function PostListItem({ post, isDetailedPost }: PostListItemProps
         style: 'destructive',
         onPress: async () => {
           try {
-            await postService.deletePost(postId);
+            await postService.deletePost(Number(postId));
             Alert.alert('Deleted', 'Post has been deleted.');
             router.back();
           } catch (err: any) {
@@ -110,7 +109,7 @@ export default function PostListItem({ post, isDetailedPost }: PostListItemProps
     }
     setIsSaving(true);
     try {
-      await postService.updatePost(postId, {
+      await postService.updatePost(Number(postId), {
         title: editTitle.trim(),
         body: editBody.trim(),
         content: editBody.trim(),
