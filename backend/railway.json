@@ -1,8 +1,4 @@
 {
-  "build": {
-    "builder": "heroku/buildpacks:20",
-    "root": "backend"
-  },
   "deploy": {
     "startCommand": "go run cmd/api/main.go"
   }
