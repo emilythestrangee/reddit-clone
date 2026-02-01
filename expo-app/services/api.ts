@@ -2,7 +2,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.20.14.194:8080/api';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://backend-green-fog-6124-production.up.railway.app/api';
 
 class ApiService {
   private api: any;
