@@ -111,53 +111,53 @@ A production-ready mobile forum application (Reddit clone) built as a technical 
 
 ### Authentication
 
-Google OAuth Sign-In/Sign-Up - Only email/password authentication implemented
-Apple OAuth Sign-In - OAuth infrastructure prepared but not completed
-Social login persistence - No profile sync with OAuth providers
+- **Google OAuth Sign-In/Sign-Up** - Only email/password authentication implemented
+- **Apple OAuth Sign-In** - OAuth infrastructure prepared but not completed
+- **Social login persistence** - No profile sync with OAuth providers
 
 ### Following Functionality, User Profiles & Social
 
-Customized User Profile Pages - No dedicated profile view with user stats, bio, or post history display
-Follow/Unfollow Users - Backend support exists but not integrated into frontend UI 
-User Discovery - No "suggested users" or user recommendations
-User Statistics - Follower count, following count, post count not displayed
-Bio/Profile Customization - Users can't edit bio, location, or profile picture from app
+- **Customized User Profile Pages** - No dedicated profile view with user stats, bio, or post history display
+- **Follow/Unfollow Users** - Backend support exists but not integrated into frontend UI 
+- **User Discovery** - No "suggested users" or user recommendations
+- **User Statistics** - Follower count, following count, post count not displayed
+- **Bio/Profile Customization** - Users can't edit bio, location, or profile picture from app
 
 ### Communities
 
-Join/Leave Communities - No community membership system
-Community Pages - No dedicated community view or feed filtering by community
-Community Moderation - No tools for community admins/moderators
+- **Join/Leave Communities** - No community membership system
+- **Community Pages** - No dedicated community view or feed filtering by community
+- **Community Moderation** - No tools for community admins/moderators
 
 ### Search & Discovery
 
-Search Users - Can only search posts, not users
-Search Communities - Community search not implemented
-Search History - No saved searches 
+- **Search Users** - Can only search posts, not users
+- **Search Communities** - Community search not implemented
+- **Search History** - No saved searches 
 
 ### Post Features
 
-Rich Text Editor - Limited markdown support (basic formatting only)
-Post Preview - No preview before publishing
-Save Posts - No bookmark/save functionality
+- **Rich Text Editor** - Limited markdown support (basic formatting only)
+- **Post Preview** - No preview before publishing
+- **Save Posts** - No bookmark/save functionality
 
 ### Comment Features
 
-Nested Replies - Comments don't support threaded replies
-Comment Awards - No award system for comments
+- **Nested Replies** - Comments don't support threaded replies
+- **Comment Awards** - No award system for comments
 
 ### Notifications & Real-time
 
-Push Notifications - No notification system for upvotes, comments, follows
-Activity Feed - No notification history or activity center
-Mentions - Can't mention users with @username
+- **Push Notifications** - No notification system for upvotes, comments, follows
+- **Activity Feed** - No notification history or activity center
+- **Mentions** - Can't mention users with @username
 
 ### Content Moderation
 
-Report/Flag Posts - No content reporting system
-Block Users - Can't block users from contacting you
-Content Filters - No NSFW or sensitive content warnings
-Post Deletion Recovery - Deleted posts can't be recovered
+- **Report/Flag Posts** - No content reporting system
+- **Block Users** - Can't block users from contacting you
+- **Content Filters** - No NSFW or sensitive content warnings
+- **Post Deletion Recovery** - Deleted posts can't be recovered
 
 ---
 
