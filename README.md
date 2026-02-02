@@ -476,3 +476,5 @@ Educational project for technical assessment purposes.
 - **Documentation:** See individual README files in `/backend`
 
 ## Demo
+
+https://github.com/user-attachments/assets/da41428f-795d-4d36-814c-3c93cb5fefa3
