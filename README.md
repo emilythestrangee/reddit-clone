@@ -477,4 +477,4 @@ Educational project for technical assessment purposes.
 
 ## Demo
 
-https://github.com/user-attachments/assets/da41428f-795d-4d36-814c-3c93cb5fefa3
+https://github.com/user-attachments/assets/fac425f9-67e3-48cb-99db-9e2eee5dfb74
