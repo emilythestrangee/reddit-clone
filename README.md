@@ -27,9 +27,8 @@ A production-ready mobile forum application (Reddit clone) built as a technical 
 
 - User authentication (register/login with JWT)
 - Create, read, update, delete posts
-- Nested commenting system
-- Image uploads and display
-- User profiles with follow/unfollow functionality
+- Commenting system
+- Image/media uploads and display
 - Mobile-first design with React Native
 - High-performance Golang backend
 - Cloud-deployed on Railway
@@ -92,20 +91,16 @@ A production-ready mobile forum application (Reddit clone) built as a technical 
 - Add comments to posts
 - View all comments per post
 - Edit/delete own comments
-- Nested comment threads
 - Comment count tracking
 
 ### User Profiles
 
-- View user profiles
-- Follow/unfollow users
-- Follower and following counts
+- Create user profiles
 - User post history
 - Profile information
 
 ### Social Features
 
-- Personalized feed
 - User discovery
 - Activity tracking
 - Engagement metrics
@@ -117,7 +112,7 @@ A production-ready mobile forum application (Reddit clone) built as a technical 
 ```
 reddit-clone/
 │
-├── backend/                        # Golang REST API
+├── backend/                         # Golang REST API
 │   ├── cmd/                         # Command-line tools
 │   ├── internal/                    # Internal packages
 │   │   ├── api/                     # API handlers
@@ -239,7 +234,7 @@ DATABASE_URL=postgresql://username:password@host/database
 
 ## API Endpoints
 
-**Base URL:** `http://localhost:8080/api` (development) or your Railway URL (production)
+**Base URL:** `http://localhost:8080/api` or 'http://<your-ip-address>:8080/api' (development) or your Railway URL (production)
 
 ### Authentication
 
@@ -342,37 +337,33 @@ eas build --platform ios
 
 ### Completed
 
-- [x] Backend API with all CRUD endpoints
-- [x] PostgreSQL database integration with GORM
-- [x] JWT authentication and middleware
-- [x] User registration and login
-- [x] Post creation, editing, deletion
-- [x] Comment system
-- [x] Frontend screens (Feed, Create)
-- [x] React Navigation with Expo Router
-- [x] API service layer with Axios
-- [x] Image upload functionality
-- [x] Upvote/downvote system
-- [x] Deployed backend on Railway
-- [x] Environment configuration
-- [x] Dark mode support
-
-### In Progress
-
-- [ ] UI/UX polish and refinements
-- [ ] Enhanced error handling
-- [ ] Loading states and animations
-- [ ] Real-time notifications
+- Backend API with all CRUD endpoints
+- PostgreSQL database integration with GORM
+- JWT authentication and middleware
+- User registration and login
+- Post creation, editing, deletion
+- Comment system
+- Frontend screens (Feed, Create)
+- React Navigation with Expo Router
+- API service layer with Axios
+- Image upload functionality
+- Upvote/downvote system
+- Deployed backend on Railway
+- Environment configuration
+- Dark mode support
+- UI/UX polish and refinements
+- Enhanced error handling
+- Loading states and real-time notifications
 
 ### Future Enhancements
 
-- [ ] Search functionality
-- [ ] Content moderation tools
-- [ ] Push notifications
-- [ ] Image optimization
-- [ ] Pagination for feeds
-- [ ] User settings page
-- [ ] Report/block users
+- Search functionality
+- Content moderation tools
+- Push notifications
+- Image optimization
+- Pagination for feeds
+- User settings page
+- Report/block users
 
 ---
 
@@ -383,7 +374,7 @@ eas build --platform ios
 ```bash
 # Run tests
 cd backend
-go test ./...
+go run cmd/api/main.go
 
 # Test with curl
 curl -X POST http://localhost:8080/api/register \
@@ -456,7 +447,7 @@ Content-Type: application/json
 | **Navigation** | Expo Router | Screen routing |
 | **HTTP Client** | Axios | API requests |
 | **Backend** | Golang + Gin | REST API |
-| **Database** | PostgreSQL (Neon) | Data storage |
+| **Database** | PostgreSQL (Hosted on Neon) | Data storage |
 | **ORM** | GORM | Database operations |
 | **Auth** | JWT + bcrypt | Security |
 | **Hosting** | Railway | Cloud deployment |
@@ -478,8 +469,10 @@ Educational project for technical assessment purposes.
 
 ## Links
 
+- **Preview URL (View in mobile after installing Expo Go):** [https://bit.ly/Reddit-clone ](https://bit.ly/Reddit-clone)
 - **Repository:** [github.com/emilythestrangee/reddit-clone](https://github.com/emilythestrangee/reddit-clone)
-- **Backend API:** Deployed on Railway
+- **Backend API:** [https://backend-green-fog-6124-production.up.railway.app/api](https://backend-green-fog-6124-production.up.railway.app/api)
 - **Mobile App:** Available via Expo Go
 - **Documentation:** See individual README files in `/backend`
-- **Demo Video:** [Coming Soon]
+
+## Demo
