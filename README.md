@@ -107,6 +107,60 @@ A production-ready mobile forum application (Reddit clone) built as a technical 
 
 ---
 
+## Features Not Implemented 
+
+### Authentication
+
+Google OAuth Sign-In/Sign-Up - Only email/password authentication implemented
+Apple OAuth Sign-In - OAuth infrastructure prepared but not completed
+Social login persistence - No profile sync with OAuth providers
+
+### Following Functionality, User Profiles & Social
+
+Customized User Profile Pages - No dedicated profile view with user stats, bio, or post history display
+Follow/Unfollow Users - Backend support exists but not integrated into frontend UI 
+User Discovery - No "suggested users" or user recommendations
+User Statistics - Follower count, following count, post count not displayed
+Bio/Profile Customization - Users can't edit bio, location, or profile picture from app
+
+### Communities
+
+Join/Leave Communities - No community membership system
+Community Pages - No dedicated community view or feed filtering by community
+Community Moderation - No tools for community admins/moderators
+
+### Search & Discovery
+
+Search Users - Can only search posts, not users
+Search Communities - Community search not implemented
+Search History - No saved searches 
+
+### Post Features
+
+Rich Text Editor - Limited markdown support (basic formatting only)
+Post Preview - No preview before publishing
+Save Posts - No bookmark/save functionality
+
+### Comment Features
+
+Nested Replies - Comments don't support threaded replies
+Comment Awards - No award system for comments
+
+### Notifications & Real-time
+
+Push Notifications - No notification system for upvotes, comments, follows
+Activity Feed - No notification history or activity center
+Mentions - Can't mention users with @username
+
+### Content Moderation
+
+Report/Flag Posts - No content reporting system
+Block Users - Can't block users from contacting you
+Content Filters - No NSFW or sensitive content warnings
+Post Deletion Recovery - Deleted posts can't be recovered
+
+---
+
 ## Project Structure
 
 ```
@@ -195,9 +249,9 @@ cp env.example .env
 # go run cmd/migrate/main.go
 
 # Start the server
-go run main.go
+go run cmd/api/main.go
 
-# Server runs at http://localhost:8080
+# Server runs at http://localhost:8080 or http://<your-ip-address>:8080
 ```
 
 ### Frontend Setup
@@ -208,6 +262,9 @@ cd ../expo-app
 
 # Install dependencies
 npm install
+
+# Update backend API URL in services/api.ts
+# Change: const API_URL = 'http://localhost:8080/api' or use Railway URL if deployed= 'https://your-backend.railway.app/api'
 
 # Start Expo development server
 npx expo start
@@ -223,18 +280,31 @@ npx expo start
 
 1. Create a free account at [Neon.tech](https://neon.tech)
 2. Create a new PostgreSQL database
-3. Copy the connection string
-4. Add to your backend `.env` file:
+3. Copy the connection string from Neon dashboard
 
+**Option 1: Using DATABASE_URL (Simpler)**
 ```env
-DATABASE_URL=postgresql://username:password@host/database
+DATABASE_URL=postgresql://neondb_owner:your-password@ep-wild-grass-xxxx.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
 ```
+
+**Option 2: Using Individual Environment Variables (Recommended for this project)**
+```env
+DB_HOST=ep-wild-grass-xxxx.c-3.us-east-1.aws.neon.tech
+DB_PORT=5432
+DB_USER=neondb_owner
+DB_PASSWORD=your-password
+DB_NAME=neondb
+DB_SSLMODE=require
+```
+
+4. Add your chosen option to `backend/.env`
+5. Backend will auto-migrate tables on startup
 
 ---
 
 ## API Endpoints
 
-**Base URL:** `http://localhost:8080/api` or 'http://<your-ip-address>:8080/api' (development) or your Railway URL (production)
+**Base URL:** `http://localhost:8080/api` or `http://<your-ip-address>:8080/api` (development) or your Railway URL (production)
 
 ### Authentication
 
@@ -313,6 +383,8 @@ PORT=8080
 Railway provides: `https://your-app.railway.app`
 
 Update frontend API URL to point to this domain
+
+
 
 ### Frontend (Expo)
 
