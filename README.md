@@ -1,284 +1,215 @@
-# 🚀 Reddit Clone - Mobile Forum Application (Work In Progress)
+# Reddit Clone - Mobile Forum Application
 
-> A full-stack Reddit-style forum built with **React Native (Expo)** and **Golang** backend. Create posts, engage with comments, follow users, and build your community!
+A full-stack Reddit-style forum built with React Native (Expo), Golang backend, and PostgreSQL database. Create posts, engage with comments, follow users, and build your community!
+
+## Table of Contents
+
+- [Project Overview](#project-overview)
+- [Tech Stack](#tech-stack)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [API Endpoints](#api-endpoints)
+- [Deployment](#deployment)
+- [Development Progress](#development-progress)
+- [Testing](#testing)
+- [Key Technologies Explained](#key-technologies-explained)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
-## 📋 Table of Contents
-- [Project Overview](#-project-overview)
-- [Tech Stack](#-tech-stack)
-- [Current Status](#-current-status)
-- [Features](#-features)
-- [Development Timeline](#-development-timeline)
-- [Project Structure](#-project-structure)
-- [Getting Started](#-getting-started)
-- [Learning Resources](#-learning-resources)
+## Project Overview
 
----
+A production-ready mobile forum application (Reddit clone) built as a technical assessment project. This demonstrates full-stack mobile development, RESTful API design, database management, and cloud deployment capabilities.
 
-## 🎯 Project Overview
+### Core Features
 
-Building a production-ready mobile forum application (Reddit clone) from scratch as part of a technical assessment. This project demonstrates full-stack development capabilities, API design, mobile app architecture, and deployment skills within a **2-week timeline**.
-
-**Core Requirements:**
-- User authentication (register/login)
+- User authentication (register/login with JWT)
 - Create, read, update, delete posts
-- Commenting system
-- Image uploads
-- User profiles with follow/unfollow
+- Nested commenting system
+- Image uploads and display
+- User profiles with follow/unfollow functionality
 - Mobile-first design with React Native
-- RESTful API backend in Golang
-- Production deployment
+- High-performance Golang backend
+- Cloud-deployed on Railway
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
-### **Frontend**
-- **React Native** - Cross-platform mobile development
-- **Expo** - Development framework and tooling
-- **Expo Router** / **React Navigation** - Screen navigation
-- **Axios** - HTTP client for API calls
-- **AsyncStorage** - Local data persistence & auth tokens
-- **Expo Image Picker** - Native image selection
-- **React Hooks** - `useState`, `useEffect`, `useContext`
+### Frontend
 
-### **Backend**
+- **React Native** - Cross-platform mobile framework
+- **Expo** - Development tooling and SDK
+- **Expo Router** - File-based routing system
+- **TypeScript** - Type-safe JavaScript
+- **Axios** - HTTP client for API requests
+- **AsyncStorage** - Local data persistence
+
+### Backend
+
 - **Golang** - High-performance backend language
-- **Gin** - Web framework for RESTful APIs
-- **GORM** - ORM for database operations
-- **SQLite** - Lightweight database (development)
-- **JWT** - Token-based authentication (planned)
-- **bcrypt** - Password hashing (planned)
+- **Gin** - Fast HTTP web framework
+- **GORM** - Object-relational mapping
+- **JWT** - Token-based authentication
+- **bcrypt** - Password hashing
 
-### **DevOps & Deployment**
-- **Railway.app** - Backend hosting
-- **Expo Go** - Mobile app distribution for testing
-- **GitHub** - Version control and collaboration
+### Database
 
----
+- **PostgreSQL** - Production database (via Neon)
+- **Neon** - Serverless PostgreSQL hosting
 
-## 🔄 Tech Stack Decisions
+### DevOps
 
-| Feature | Other Applications | Our Application | Why |
-|---------|--------------|-------------|-----|
-| **Backend** | Supabase | Custom Golang API | Project requirement |
-| **Authentication** | Clerk | Custom JWT auth | Full control & learning |
-| **State Management** | Jotai | React Context/Hooks | Simpler, sufficient for our needs |
-| **Data Fetching** | TanStack Query | Axios + useEffect | Direct API calls, less abstraction |
-| **Database** | Supabase PostgreSQL | SQLite → PostgreSQL | Progressive complexity |
-| **Storage** | Supabase Storage | Custom file upload API | Integrated with our backend |
-
-**Our Approach:**
-- **Learning from resources** - UI/UX patterns, component structure, navigation flows
-- **Building custom backend** - Full ownership of API design and data flow
-- **Simplified stack** - Using proven, straightforward technologies
-- **Production-ready** - Deployable, scalable architecture
+- **Railway.app** - Backend hosting and deployment
+- **Expo Go** - Mobile app testing and distribution
+- **Docker** - Containerization support
+- **Git** - Version control
 
 ---
 
-## 📊 Current Status
+## Features
 
-### **Completed (Week 1 - Days 1-2)**
-- [x] Project structure setup (monorepo)
-- [x] Backend API with all core endpoints (15 routes)
-- [x] Database models (Users, Posts, Comments, Follows)
-- [x] CORS configuration for mobile
-- [x] Git repository initialized
-- [x] Backend tested with Postman
-- [x] SQLite database with migrations
+### Authentication System
 
-### **In Progress (Week 1 - Days 3-4)**
-- [ ] Frontend screens (Login, Register, Feed)
-- [ ] React Navigation setup
-- [ ] API service layer (Axios integration)
-- [ ] Authentication flow with token storage
-
-### **Upcoming (Week 1 - Days 5-7)**
-- [ ] Create post screen with image picker
-- [ ] Post detail screen with comments
-- [ ] User profile screens
-- [ ] Follow/unfollow functionality
-
-### **Week 2**
-- [ ] Polish UI/UX
-- [ ] Implement JWT authentication
-- [ ] Deploy backend 
-- [ ] Create shareable Expo link
-- [ ] Final testing and documentation
-
----
-
-## ✨ Features
-
-### **Authentication** 
-- User registration with email validation
-- Secure login system
+- User registration with validation
+- Secure login with JWT tokens
+- Password hashing with bcrypt
+- Protected routes and middleware
 - Token-based session management
-- Persistent authentication state
-- Logout functionality
 
-### **Posts** 
+### Post Management
+
 - Create posts with title, content, and images
 - Edit and delete own posts
 - Upvote/downvote system
-- Chronological feed display
-- Image attachments via native picker
+- Image upload and display
+- Post feed with sorting
 
-### **Comments** 
-- Comment on any post
+### Comment System
+
+- Add comments to posts
 - View all comments per post
 - Edit/delete own comments
-- Real-time comment counts
-- User attribution for each comment
+- Nested comment threads
+- Comment count tracking
 
-### **User Profiles** 
-- View user profiles with post history
+### User Profiles
+
+- View user profiles
 - Follow/unfollow users
 - Follower and following counts
-- Edit profile information
-- View followed users' posts
+- User post history
+- Profile information
 
-### **Social Features** 
-- Personalized feed based on follows
-- Discover new users
-- Community engagement metrics
-- Vote tracking per user
+### Social Features
 
----
-
-## 📅 Development Timeline
-
-```
-Week 1 (Jan 21-27)
-├── Days 1-2: Backend foundation ✅
-│   ├── Go server setup ✅
-│   ├── Database models ✅
-│   ├── All API endpoints ✅
-│   └── Postman testing ✅
-│
-├── Days 3-4: Frontend setup & auth 
-│   ├── Expo project init ✅
-│   ├── Navigation structure
-│   ├── Login/Register screens
-│   └── API service layer
-│
-├── Days 5-6: Core features
-│   ├── Feed screen
-│   ├── Create post screen
-│   ├── Post detail with comments
-│   └── Image upload integration
-│
-└── Day 7: Social features
-    ├── User profiles
-    ├── Follow system
-    └── Profile editing
-
-Week 2 (Jan 28 - Feb 4)
-├── Days 8-10: Polish & enhancements
-│   ├── UI/UX improvements
-│   ├── Loading states
-│   ├── Error handling
-│   └── Optimistic updates
-│
-├── Days 11-12: Deployment
-│   ├── Backend to Railway ☁️
-│   ├── Environment config
-│   ├── Production testing
-│   └── Expo build
-│
-└── Days 13-14: Final touches
-    ├── Bug fixes
-    ├── Documentation
-    ├── Demo preparation
-    └── Submission
-```
+- Personalized feed
+- User discovery
+- Activity tracking
+- Engagement metrics
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 reddit-clone/
-├── assets/                     # Root level assets
-│   └── icon.png
 │
-├── backend/                    # Golang REST API
-│   ├── main.go                # Server entry point
-│   ├── go.mod                 # Go dependencies
-│   └── go.sum                 # Dependency checksums
+├── backend/                        # Golang REST API
+│   ├── cmd/                         # Command-line tools
+│   ├── internal/                    # Internal packages
+│   │   ├── api/                     # API handlers
+│   │   ├── models/                  # Database models
+│   │   └── middleware/              # JWT auth middleware
+│   ├── main.go                      # Server entry point
+│   ├── go.mod                       # Go dependencies
+│   ├── go.sum                       # Dependency checksums
+│   ├── Dockerfile                   # Docker configuration
+│   ├── docker-compose.yml           # Multi-container setup
+│   ├── env.example                  # Environment variables template
+│   ├── fly.toml                     # Fly.io deployment config
+│   └── README.md                    # Backend documentation
 │
-└── expo-app/                   # React Native mobile app (TypeScript)
-    ├── app/                   # Expo Router screens
-    │   ├── (tabs)/           # Tab navigation
-    │   │   ├── _layout.tsx   # Tab layout
-    │   │   ├── index.tsx     # Home/Feed screen
-    │   │   ├── chat.tsx      # Chat screen
-    │   │   ├── communities.tsx # Communities screen
-    │   │   ├── create.tsx    # Create post screen
-    │   │   └── inbox.tsx     # Inbox screen
-    │   │
-    │   ├── post/             # Post detail screens
-    │   │   └── _layout.tsx
-    │   │
-    │   ├── assets/           # App assets
-    │   │   └── images/       # Image files
-    │   │
-    │   ├── components/       # Reusable components
-    │   │   └── ui/          # UI components
-    │   │       ├── PostListItem.tsx
-    │   │       ├── CommentListItem.tsx
-    │   │       ├── themed-text.tsx
-    │   │       └── themed-view.tsx
-    │   │
-    │   ├── constants/        # App constants
-    │   ├── hooks/            # Custom React hooks
-    │   ├── types/            # TypeScript type definitions
-    │   │
-    │   ├── groupSelector.tsx # Group selector screen
-    │   └── modal.tsx         # Modal screen
+└── expo-app/                        # React Native mobile app
+    ├── app/                         # Expo Router screens
+    │   ├── (tabs)/                  # Bottom tab navigation
+    │   │   ├── _layout.tsx          # Tab layout configuration
+    │   │   ├── index.tsx            # Home/Feed screen
+    │   │   ├── chat.tsx             # Chat screen (placeholder)
+    │   │   ├── communities.tsx      # Communities screen
+    │   │   ├── create.tsx           # Create post screen
+    │   │   └── inbox.tsx            # Inbox/notifications
+    │   ├── post/                     # Post-related screens
+    │   │   └── [id].tsx             # Post detail layout
+    │   ├── assets/                   # App assets
+    │   │   ├── data/                 # Dummy data
+    │   │   └── images/               # Image files
+    │   ├── components/               # Reusable components
+    │   │   └── ui/                   # UI component library
+    │   │       ├── PostListItem.tsx  # Post card component
+    │   │       ├── CommentListItem.tsx # Comment component
+    │   │       ├── themed-text.tsx   # Themed text wrapper
+    │   │       └── themed-view.tsx   # Themed view wrapper
+    │   ├── constants/                # App constants
+    │   ├── hooks/                    # Custom React hooks
+    │   ├── types/                    # TypeScript definitions
+    │   ├── groupSelector.tsx         # Group selection UI
+    │   └── modal.tsx                 # Modal screen template
     │
-    ├── app.json              # Expo configuration
-    ├── package.json          # npm dependencies
-    ├── tsconfig.json         # TypeScript configuration
-    |── README.md
-    └── eslint.config.js      # ESLint rules
+    ├── assets/                        # Root-level assets
+    │   └── icon.png                  # App icon
+    │
+    ├── app.json                       # Expo configuration
+    ├── package.json                   # npm dependencies
+    ├── tsconfig.json                  # TypeScript config
+    ├── eslint.config.js               # ESLint rules
+    ├── global.d.ts                    # Global type definitions
+    ├── expo-env.d.ts                  # Expo environment types
+    └── README.md                      # Documentation
+```
+
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-### **Prerequisites**
-- **Node.js** (v18+) - [Download](https://nodejs.org/)
-- **Go** (v1.21+) - [Download](https://go.dev/dl/)
-- **Expo Go** app on your phone - [iOS](https://apps.apple.com/app/expo-go/id982107779) | [Android](https://play.google.com/store/apps/details?id=host.exp.exponent)
-- **Postman** (for API testing) - [Download](https://www.postman.com/downloads/)
-- **Git** - [Download](https://git-scm.com/)
+### Prerequisites
 
-### **Backend Setup**
+- [Node.js](https://nodejs.org/) (v18+)
+- [Go](https://golang.org/dl/) (v1.21+)
+- PostgreSQL - Local install or use [Neon](https://neon.tech)
+- Expo Go app - [iOS](https://apps.apple.com/app/expo-go/id982107779) | [Android](https://play.google.com/store/apps/details?id=host.exp.exponent)
+- [Git](https://git-scm.com/downloads)
+
+### Backend Setup
 
 ```bash
 # Clone repository
 git clone https://github.com/emilythestrangee/reddit-clone.git
-cd reddit-clone
-
-# Navigate to backend
-cd backend
+cd reddit-clone/backend
 
 # Install dependencies
-go mod tidy
+go mod download
 
-# Run server
+# Set up environment variables
+cp env.example .env
+# Edit .env with your database credentials
+
+# Run migrations (if applicable)
+# go run cmd/migrate/main.go
+
+# Start the server
 go run main.go
 
 # Server runs at http://localhost:8080
-# You should see: "🚀 Server starting on http://localhost:8080"
 ```
 
-### **Frontend Setup**
+### Frontend Setup
 
 ```bash
-# Navigate to frontend (from project root)
-cd expo-app
+# Navigate to mobile app
+cd ../expo-app
 
 # Install dependencies
 npm install
@@ -287,45 +218,188 @@ npm install
 npx expo start
 
 # Options:
-# - Press 'w' to open in web browser
-# - Scan QR code with Expo Go app (iOS/Android)
 # - Press 'a' for Android emulator
 # - Press 'i' for iOS simulator (Mac only)
+# - Scan QR code with Expo Go app on your phone
+# - Press 'w' to open in web browser
 ```
 
-### **Testing the Backend**
+### Database Setup (Neon)
 
-Import this Postman collection or test manually:
+1. Create a free account at [Neon.tech](https://neon.tech)
+2. Create a new PostgreSQL database
+3. Copy the connection string
+4. Add to your backend `.env` file:
 
-**1. Register User**
-```bash
-POST http://localhost:8080/api/register
-Content-Type: application/json
-
-{
-  "username": "testuser",
-  "email": "test@example.com",
-  "password": "password123"
-}
+```env
+DATABASE_URL=postgresql://username:password@host/database
 ```
 
-**2. Login**
-```bash
-POST http://localhost:8080/api/login
-Content-Type: application/json
+---
 
-{
-  "email": "test@example.com",
-  "password": "password123"
-}
+## API Endpoints
 
-# Copy the token from response
+**Base URL:** `http://localhost:8080/api` (development) or your Railway URL (production)
+
+### Authentication
+
+```
+POST   /api/register          # Create new user
+POST   /api/login             # Login user (returns JWT token)
 ```
 
-**3. Create Post (Protected)**
+### Posts
+
+```
+GET    /api/posts             # Get all posts
+POST   /api/posts             # Create post (auth required)
+GET    /api/posts/:id         # Get single post
+PUT    /api/posts/:id         # Update post (auth required)
+DELETE /api/posts/:id         # Delete post (auth required)
+POST   /api/posts/:id/vote    # Upvote/downvote (auth required)
+```
+
+### Comments
+
+```
+GET    /api/posts/:id/comments        # Get post comments
+POST   /api/posts/:id/comments        # Add comment (auth required)
+PUT    /api/comments/:id              # Update comment (auth required)
+DELETE /api/comments/:id              # Delete comment (auth required)
+```
+
+### Users
+
+```
+GET    /api/users/:id                 # Get user profile
+PUT    /api/users/:id                 # Update profile (auth required)
+POST   /api/users/:id/follow          # Follow user (auth required)
+DELETE /api/users/:id/follow          # Unfollow user (auth required)
+GET    /api/users/:id/followers       # Get followers list
+GET    /api/users/:id/following       # Get following list
+```
+
+**Protected Routes:** Require `Authorization: Bearer <JWT_TOKEN>` header
+
+---
+
+## Deployment
+
+### Backend (Railway)
+
+#### 1. Create Railway Account
+
+Sign up at [Railway.app](https://railway.app)
+
+#### 2. Connect your GitHub repository
+
+#### 3. Deploy Backend
+
 ```bash
+# Railway will auto-detect your Dockerfile
+# Or use railway.json for configuration
+```
+
+#### 4. Configure Database
+
+- Add PostgreSQL plugin in Railway dashboard
+- Railway auto-injects `DATABASE_URL` environment variable
+
+#### 5. Environment Variables
+
+```env
+DATABASE_URL=<auto-injected-by-railway>
+JWT_SECRET=<your-secret-key>
+PORT=8080
+```
+
+#### 6. Domain
+
+Railway provides: `https://your-app.railway.app`
+
+Update frontend API URL to point to this domain
+
+### Frontend (Expo)
+
+#### Development Testing
+
+```bash
+npx expo start
+# Share via Expo Go app
+```
+
+#### Production Build (optional)
+
+```bash
+# For app stores
+eas build --platform android
+eas build --platform ios
+```
+
+---
+
+## Development Progress
+
+### Completed
+
+- [x] Backend API with all CRUD endpoints
+- [x] PostgreSQL database integration with GORM
+- [x] JWT authentication and middleware
+- [x] User registration and login
+- [x] Post creation, editing, deletion
+- [x] Comment system
+- [x] Frontend screens (Feed, Create)
+- [x] React Navigation with Expo Router
+- [x] API service layer with Axios
+- [x] Image upload functionality
+- [x] Upvote/downvote system
+- [x] Deployed backend on Railway
+- [x] Environment configuration
+- [x] Dark mode support
+
+### In Progress
+
+- [ ] UI/UX polish and refinements
+- [ ] Enhanced error handling
+- [ ] Loading states and animations
+- [ ] Real-time notifications
+
+### Future Enhancements
+
+- [ ] Search functionality
+- [ ] Content moderation tools
+- [ ] Push notifications
+- [ ] Image optimization
+- [ ] Pagination for feeds
+- [ ] User settings page
+- [ ] Report/block users
+
+---
+
+## Testing
+
+### Backend Testing
+
+```bash
+# Run tests
+cd backend
+go test ./...
+
+# Test with curl
+curl -X POST http://localhost:8080/api/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"test","email":"test@example.com","password":"password123"}'
+```
+
+### API Testing with Postman
+
+Import the collection and test all endpoints:
+
+**Example: Create Post**
+
+```
 POST http://localhost:8080/api/posts
-Authorization: Bearer your-token-here
+Authorization: Bearer <your-jwt-token>
 Content-Type: application/json
 
 {
@@ -335,164 +409,77 @@ Content-Type: application/json
 }
 ```
 
-**4. Get All Posts**
-```bash
-GET http://localhost:8080/api/posts
-```
+---
+
+## Key Technologies Explained
+
+### Why Golang?
+
+- High performance and concurrency
+- Fast compilation and execution
+- Strong standard library
+- Excellent for RESTful APIs
+- Native Docker support
+
+### Why React Native + Expo?
+
+- Cross-platform (iOS + Android)
+- Write once, deploy everywhere
+- Large ecosystem and community
+- Fast development with hot reload
+- Easy deployment with Expo Go
+
+### Why PostgreSQL?
+
+- Robust relational database
+- ACID compliance
+- Strong data integrity
+- Excellent performance
+- Neon provides serverless hosting
+
+### Why Railway?
+
+- Simple deployment process
+- Auto-scaling capabilities
+- Built-in PostgreSQL support
+- Environment management
+- GitHub integration
 
 ---
 
-## 📡 API Endpoints
+## Tech Stack Summary
 
-### **Authentication**
-```
-POST   /api/register          # Create new user
-POST   /api/login             # Login user (returns token)
-```
-
-### **Posts**
-```
-GET    /api/posts             # Get all posts (public)
-POST   /api/posts             # Create post (auth required)
-PUT    /api/posts/:id         # Update post (auth required)
-DELETE /api/posts/:id         # Delete post (auth required)
-POST   /api/posts/:id/vote    # Upvote/downvote (auth required)
-```
-
-### **Comments**
-```
-GET    /api/posts/:id/comments        # Get post comments (public)
-POST   /api/posts/:id/comments        # Add comment (auth required)
-```
-
-### **Users**
-```
-GET    /api/users/:id                 # Get user profile (public)
-PUT    /api/users/:id                 # Update profile (auth required)
-POST   /api/users/:id/follow          # Follow user (auth required)
-DELETE /api/users/:id/follow          # Unfollow user (auth required)
-GET    /api/users/:id/followers       # Get followers list (public)
-GET    /api/users/:id/following       # Get following list (public)
-```
-
-**Protected Routes:** Require `Authorization: Bearer <token>` header
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Frontend** | React Native + Expo | Mobile UI |
+| **Language** | TypeScript | Type safety |
+| **Navigation** | Expo Router | Screen routing |
+| **HTTP Client** | Axios | API requests |
+| **Backend** | Golang + Gin | REST API |
+| **Database** | PostgreSQL (Neon) | Data storage |
+| **ORM** | GORM | Database operations |
+| **Auth** | JWT + bcrypt | Security |
+| **Hosting** | Railway | Cloud deployment |
+| **Version Control** | Git + GitHub | Code management |
 
 ---
 
-## 📚 Learning Resources
+## Contributing
 
-### **Official Documentation**
-- [Expo Documentation](https://docs.expo.dev/)
-- [React Navigation](https://reactnavigation.org/)
-- [Gin Web Framework](https://gin-gonic.com/)
-- [GORM ORM](https://gorm.io/)
-- [React Native Docs](https://reactnative.dev/)
+This is a technical assessment project. Feedback and suggestions are welcome!
 
 ---
 
-## 🎓 What We're Learning
-
-This project covers comprehensive full-stack mobile development:
-
-### **Frontend Skills**
-- **React Native fundamentals** - Components, state, props, hooks
-- **Mobile UI/UX** - Native design patterns and interactions
-- **Navigation** - Stack and tab navigation patterns
-- **Styling** - React Native StyleSheet and layouts
-- **Native APIs** - Image picker, camera, storage
-- **State management** - Context API and custom hooks
-- **API integration** - Axios for HTTP requests
-- **Local storage** - AsyncStorage for persistence
-
-### **Backend Skills**
-- **Golang** - Language fundamentals and best practices
-- **RESTful API design** - Resource-based endpoints
-- **Database modeling** - Relational data structures with GORM
-- **Authentication** - JWT tokens and middleware
-- **CRUD operations** - Full data lifecycle management
-- **Database relationships** - Foreign keys and associations
-- **Performance** - Efficient queries and data loading
-- **Security** - CORS, input validation, password hashing
-
-### **DevOps & Tools**
-- **Deployment** - Railway for backend hosting
-- **Mobile distribution** - Expo Go for testing
-- **API testing** - Postman workflows and collections
-- **Version control** - Git workflow and collaboration
-- **Project structure** - Monorepo organization
-
----
-
-## 🎯 Key Differences from Tutorials
-
-| Aspect | Other Approaches | Our Approach | Rationale |
-|--------|------------------|--------------|-----------|
-| **Backend** | Supabase (BaaS) | Custom Golang API | Project requirement, full control |
-| **Auth** | Clerk (3rd party) | Custom JWT | Learning opportunity |
-| **State** | Jotai | React Context/Hooks | Simpler for our scale |
-| **Data Fetching** | TanStack Query | Axios + useEffect | Direct control over API calls |
-| **Database** | Supabase PostgreSQL | SQLite → PostgreSQL | Progressive migration |
-| **File Upload** | Supabase Storage | Custom endpoint | Integrated backend logic |
-
----
-
-## 📝 Development Notes
-
-### **Architecture Decisions**
-- **Monorepo structure** - Easier development, single source of truth
-- **API-first approach** - Backend complete before UI integration
-- **SQLite for development** - Fast iteration, will migrate to PostgreSQL
-- **Mock auth initially** - Functional first, secure later
-- **CORS enabled** - Configured for mobile app access
-- **Modular organization** - Separate screens, components, services
-
-### **Current Limitations (MVP)**
-- Mock JWT tokens (functional auth, not production-secure yet)
-- SQLite database (will migrate to PostgreSQL for production)
-- Basic error handling (will enhance with better UX)
-- No real-time features (can add with WebSockets later)
-
-### **Post-MVP Enhancements**
-- Proper JWT with refresh tokens
-- PostgreSQL migration for production
-- Real-time notifications
-- Search functionality
-- Content moderation
-- Dark mode support
-- Push notifications
-- Analytics dashboard
-- Image compression and optimization
-- Pagination for large datasets
-
----
-
-## 🐛 Known Issues & Limitations
-
-- [ ] Authentication uses mock tokens (not production-ready)
-- [ ] No password hashing yet (will implement bcrypt)
-- [ ] Limited error messages on frontend
-- [ ] No loading states yet
-- [ ] Image upload stores base64 (will optimize)
-
----
-
-## 🤝 Contributing
-
-This is a learning project for technical assessment. Feedback welcome but no external contributions accepted during assessment period.
-
----
-
-## 📄 License
+## License
 
 Educational project for technical assessment purposes.
 
 ---
 
-## 🔗 Links
+## Links
 
 - **Repository:** [github.com/emilythestrangee/reddit-clone](https://github.com/emilythestrangee/reddit-clone)
-- **Backend API:** Coming soon 
-- **Mobile App:** Coming soon 
-- **Demo Video:** Coming soon
-
----
+- **Backend API:** Deployed on Railway
+- **Mobile App:** Available via Expo Go
+- **Documentation:** See individual README files in `/backend`
+- **Demo Video:** [Coming Soon]
